@@ -1,0 +1,50 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# metaforest
+
+The goal of MetaForest is to explore heterogeneity in meta-analytic data, identify important moderators, and explore the functional form of the relationship between moderators and effect size. To do so, MetaForest conducts a weighted random forest analysis, using random-effects or fixed-effects weights, as in classic meta-analysis, or uniform weights (unweighted random forest). Simulation studies have demonstrated that this technique has substantial power to detect relevant moderators, even in datasets as small as 20 cases (based on cross-validated $R^2$). Using a variable importance plot, important moderators can be identified, and using partial prediction plots, the shape of the marginal relationship between moderators and effect size can be visualized. MetaForest can be readily integrated in classical meta-analytic approaches: If MetaForest is conducted as a primary analysis, classic meta-analysis can be used to quantify heterogeneity (in fact, MetaForest by default reports a random-effects meta-analysis on the raw data, and the residuals of the random forests analysis), or to provide a simplified representation of the linear effects of important predictors. Conversely, a theory-driven classical meta-analysis could be complemented by an exploratory MetaForest analysis, as a final check to ensure that important moderators have not been overlooked. We hope that this approach will be of use to researchers, and that the availability of user-friendly R functions will facilitate its adoption.
+
+## Example
+
+This example demonstrates how one might go about conducting a meta-analysis using MetaForest:
+
+```{r example}
+#Load metaforest package
+library(metaforest)
+
+#Simulate a meta-analysis dataset with 20 studies, 1 relevant moderator, and 4 irrelevant moderators
+set.seed(42)
+data <- SimulateSMD()$training
+
+#Conduct an unweighted MetaForest analysis, to estimate the residual tau2
+mf.unif <- MetaForest(formula = yi ~ ., data = data,
+                      whichweights = "unif", method = "DL", num.trees = 2000)
+
+#Extract the result of this analysis and print them
+results <- summary(mf.unif)
+results
+
+#Conduct a weighted MetaForest analysis, using the residual tau2 from the
+#unweighted analysis above
+mf.random <- MetaForest(formula = yi ~ ., data = data,
+                      whichweights = "random", method = "DL", 
+                      tau2 = results$rma[2,1],
+                      num.trees = 2000)
+
+#Print the result of this analysis
+summary(mf.random)
+```
