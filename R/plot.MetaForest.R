@@ -23,14 +23,12 @@ plot.MetaForest <- function(x, y, ...) {
     if (!inherits(x, "MetaForest"))
       stop("Argument 'x' must be an object of class \"MetaForest\".")
     ranger_object <- x$forest
-    data <- x$data
+    data <- get_all_vars(as.formula(x$call[2]), x$data)
 
-    observed <- data[[gsub("(.+?) ~.*", "\\1", as.character(x$call)[2])]]
+    observed <- data[[as.character(as.formula(x$call[2])[2])]]
     predictions <- predict(ranger_object, data = data, predict.all = TRUE)$predictions
-    mses <- apply(predictions, 2, function(preds){mean((preds - observed)^2)})
-    mses <- sapply(1:length(mses), function(i){
-      mean(mses[c(1:i)])
-    })
+    mses <- colMeans(sweep(predictions, 1, observed, "-")^2)
+    mses <- cumsum(mses) / 1:length(mses)
     cumulative_predictions <- data.frame(num_trees = 1:length(mses), mse = mses)
     ggplot(cumulative_predictions, aes_string(x = "num_trees", y = "mse")) +
       geom_line() +

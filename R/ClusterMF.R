@@ -180,7 +180,7 @@ ClusterMF <- function(formula, data, vi = "vi", study = NULL,
                    )
     class(forest) <- "ranger"
     class(forest$forest) <- "ranger.forest"
-    output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, call = args, data = data)
+    output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, call = args, data = data, vi = vi, weights = metaweights)
     class(output) <- c("MetaForest")
     output
 }

@@ -122,7 +122,7 @@ MetaForest <- function(formula, data, vi = "vi", whichweights = "random",
 
     rma_after <- metafor::rma(yi = residuals, vi = vi, method = method)
 
-    output <- list(forest = mf, rma_before = rma_before, rma_after = rma_after, call = args, data = data)
+    output <- list(forest = mf, rma_before = rma_before, rma_after = rma_after, call = args, data = data, vi = vi, weights = metaweights)
     class(output) <- "MetaForest"
     output
 }

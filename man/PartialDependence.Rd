@@ -5,7 +5,8 @@
 \title{Plots partial dependence plots for a MetaForest object, using the function
 \code{partial_dependence()} from the package \code{edarf}.}
 \usage{
-PartialDependence(mf, vars = NULL, interaction = FALSE, ...)
+PartialDependence(mf, vars = NULL, interaction = FALSE, pi = NULL,
+  rawdata = FALSE, resolution = NULL, ...)
 }
 \arguments{
 \item{mf}{MetaForest object.}
@@ -16,7 +17,20 @@ partial dependence plots. If empty, all moderators are plotted.}
 \item{interaction}{Logical, indicating whether a bivariate interaction should
 be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.}
 
-\item{...}{Additional arguments to be passed to \code{partial_dependence}.}
+\item{pi}{Numeric (0-1). What percentile interval should be plotted for the
+partial dependence predictions? Defaults to NULL. To obtain a 95\% confidence
+interval, set to \code{.95}.}
+
+\item{rawdata}{Logical, indicating whether to plot weighted raw data.
+Defaults to FALSE. Uses the same weights as the MetaForest object passed.}
+
+\item{resolution}{Integer vector of length two, giving the resolution of the
+partial predictions. The first element indicates the resolution of the
+partial predictions; the second element gives the number of rows of the data
+to be sampled without replacement when averaging over values of the other
+predictors.}
+
+\item{...}{Additional arguments to be passed to \code{marginalPrediction}.}
 }
 \value{
 A ggplot object.

@@ -1,11 +1,10 @@
-#' Extract proximity for a MetaForest object.
+#' Extract proximity matrix for a MetaForest object.
 #'
 #' @param fit object of class \'MetaForest\'.
 #' @param newdata new data with the same columns as the data used for \code{fit}
 #' @return an n x n matrix where position i, j gives the proportion of times
 #' observation i and j are in the same terminal node across all trees.
-#' @import edarf
-#' @import ranger
+#' @importFrom stats predict
 #' @export
 #' @examples
 #' \dontshow{
@@ -17,10 +16,17 @@
 #'                       whichweights = "unif", method = "DL")
 #' prox_matrix <- extract_proximity(mf.unif)
 #' }
+extract_proximity = function(fit, newdata) UseMethod("extract_proximity")
+#' @export
 extract_proximity.MetaForest <- function(fit, newdata) {
     if (!inherits(fit, "MetaForest"))
       stop("Argument 'fit' must be an object of class \"MetaForest\".")
-    newdata <- fit$data[, -match(gsub("(.+?) ~.*", "\\1", as.character(fit$call)[2]), names(fit$data))]
-    fit <- fit$forest
-    extract_proximity(fit = fit, newdata = newdata)
+
+    newdata <- get_all_vars(as.formula(fit$call[2]), fit$data)
+    newdata <- newdata[, -match(as.character(as.formula(fit$call[2])[2]), names(newdata))]
+    pred <- predict(fit$forest, newdata, type = "terminalNodes")$predictions
+    n <- nrow(pred)
+    apply(pred, 1, function(x){
+      .colSums(t(pred) == x, m = dim(pred)[1], n = dim(pred)[2])
+    }) / ncol(pred)
 }

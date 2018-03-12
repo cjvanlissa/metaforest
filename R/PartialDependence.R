@@ -6,11 +6,20 @@
 #' partial dependence plots. If empty, all moderators are plotted.
 #' @param interaction Logical, indicating whether a bivariate interaction should
 #' be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.
-#' @param ... Additional arguments to be passed to \code{partial_dependence}.
+#' @param pi Numeric (0-1). What percentile interval should be plotted for the
+#' partial dependence predictions? Defaults to NULL. To obtain a 95\% confidence
+#' interval, set to \code{.95}.
+#' @param rawdata Logical, indicating whether to plot weighted raw data.
+#' Defaults to FALSE. Uses the same weights as the MetaForest object passed.
+#' @param resolution Integer vector of length two, giving the resolution of the
+#' partial predictions. The first element indicates the resolution of the
+#' partial predictions; the second element gives the number of rows of the data
+#' to be sampled without replacement when averaging over values of the other
+#' predictors.
+#' @param ... Additional arguments to be passed to \code{marginalPrediction}.
 #' @return A ggplot object.
-#' @import edarf
 #' @import ggplot2
-#' @import reshape2
+#' @importFrom mmpf marginalPrediction
 #' @export
 #' @examples
 #' set.seed(42)
@@ -23,7 +32,7 @@
 #' PartialDependence(mf.random)
 #' #Examine bivariate partial dependence plot the interaction between X1 and X2:
 #' PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
-PartialDependence <- function(mf, vars = NULL, interaction = FALSE, ...){
+PartialDependence <- function(mf, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, ...){
   if(is.null(vars)){
     vars <- names(mf$forest$variable.importance)
   } else {
@@ -32,67 +41,99 @@ PartialDependence <- function(mf, vars = NULL, interaction = FALSE, ...){
   if(interaction & (length(vars) > 2 | length(vars) == 1)) {
     stop("Only bivariate interactions can be plotted. Argument \'vars\' must be of length 2 when \'interaction = TRUE\'.")
   }
-  data <- mf$data
+  classes <- sapply(mf$data[vars], class)
+  if(!interaction & (any(classes %in% c("numeric", "integer")) & any(classes %in% c("factor", "character")))){
+    stop("Argument \'vars\' contains both numeric and factor variables. Please request separate partial dependence plots for numeric and factor variables.")
+  }
 
-  data <- get_all_vars(as.formula(mf$call[2]), data)
+  data <- get_all_vars(as.formula(mf$call[2]), mf$data)
   target <- as.character(as.formula(mf$call[2])[2])
 
-  pd <- partial_dependence(fit = mf$forest, vars = vars, data = data, interaction = interaction, ...)
+  if(is.null(resolution)){
+    resolution <- c(min(nrow(unique(data[, vars, drop = FALSE])), 25L), nrow(data))
+  }
+  args <- list(
+    "data" = data,
+    "n" = resolution,
+    "model" = mf$forest,
+    "predict.fun" = function(object, newdata) {
+      predict(object, data = newdata)$predictions
+    },
+    ...
+  )
+  if (!is.null(pi) & !interaction){
+    args[["aggregate.fun"]] <- function(x){ c(sum(x)/length(x), quantile(x, c((.5 * (1 - pi)), 1 - (.5 * (1 - pi))))) }
+  }
+  if(interaction) {
+    args[["vars"]] <- vars
+    pd = do.call("marginalPrediction", args)
+    names(pd)[3] <- target
+  } else {
+    pd <- lapply(vars, function(x) {
+      do.call(
+        "marginalPrediction",
+        c(args, "vars" = x)
+      )
+    })
+    var_labels <- unlist(sapply(1:length(vars), function(x){rep(vars[x], nrow(pd[[x]]))}, simplify = FALSE))
+    pd <- lapply(pd, function(x){
+      names(x)[c(1,2)] <- c("Value", target)
+      x
+    })
+    pd <- do.call("rbind", pd)
+    pd$Variable <- var_labels
+  }
+  if(!is.null(pi)) names(pd)[c(3,4)] <- c("lower", "upper")
 
   if(!interaction) { #If no interaction is requested, plot univariate plots
-    classes <- sapply(pd[-ncol(pd)], class)
-    if(any(classes %in% c("numeric", "integer")) & any(classes %in% c("factor", "character"))){
-      warning("Argument \'vars\' contains both numeric and categorical variables. Numeric variables will be treated as factors.")
-      pd[names(classes)[which(sapply(classes, function(x) any(c("numeric", "integer") %in% x)))]] <- lapply(pd[names(classes)[which(sapply(classes, function(x) any(c("numeric", "integer") %in% x)))]], factor, ordered = TRUE)
-      levs <- unique(unlist(sapply(pd[-match(target, names(pd))], function(x){levels(factor(x))})))
+    p <- ggplot(pd, aes_string("Value", target))
+    if(all(classes %in% c("numeric", "integer"))){
+      p <- p + geom_line(aes(group=1)) + scale_x_continuous(expand = c(0,0))
+      if(!is.null(pi)){
+        p <- p + geom_ribbon(aes_string(ymin = "lower", ymax = "upper"), alpha = .2)
+      }
+      if(rawdata){
+        raw.data <- data.frame(wi = mf$weights, mf$data[c(1, match(vars, names(mf$data)))])
+        names(raw.data)[-c(1,2)] <- paste0("Value.", names(raw.data)[-c(1,2)])
+        raw.data <- reshape(raw.data, varying = 3:ncol(raw.data), direction = "long", timevar = "Variable")[, c(1:4)]
+        p <- p + geom_point(data = raw.data, alpha=.1, aes_string(size = "wi"))
+      }
+    } else {
+      p <- p + geom_point(size = 5, shape = 18)
+      if(!is.null(pi)){
+        p <- p + geom_errorbar(aes_string(
+                      ymin = "lower",
+                      ymax = "upper"),
+                      width = .4)
+      }
+      if(rawdata){
+        raw.data <- data.frame(wi = mf$weights, mf$data[c(1, match(vars, names(mf$data)))])
+        names(raw.data)[-c(1,2)] <- paste0("Value.", names(raw.data)[-c(1,2)])
+        raw.data <- reshape(raw.data, varying = 3:ncol(raw.data), direction = "long", timevar = "Variable")[, c(1:4)]
+        p <- p + geom_jitter(data = raw.data, width = .2, alpha=.1, aes_string(size = "wi"))
+      }
     }
 
-    dat <- melt(pd, id.vars = target, na.rm = TRUE)
-
-    if(exists("levs")){
-      dat$value <- ordered(dat$value, levels = levs)
-    }
-
-    p <- ggplot(dat, aes_string("value", target)) +
-                geom_line(aes(group=1)) +
-                geom_point()
     if (length(vars) == 1) {
       p <- p + labs(x = vars)
     } else {
-      p <- p + facet_wrap(~variable, scales = "free_x")
+      p <- p + facet_wrap(~Variable, scales = "free_x")
     }
   } else { #If an interaction plot is requested
-    dat <- pd
-    classes <- unique(sapply(dat[-3], class)) #Check if all variables are the same class
-    if(length(classes) == 1){
-      p <- ggplot(dat, aes_string(vars[1], vars[2], fill = target)) +
+      p <- ggplot(pd, aes_string(vars[1], vars[2], fill = target)) +
       geom_raster() +
       scale_fill_gradient(low = "white", high = "black")
-      if(classes %in% c("factor", "character")){
-        p <- p + scale_x_discrete(expand=c(0,0)) +
-                 scale_y_discrete(expand=c(0,0))
+      if(class(vars[1]) %in% c("factor", "character")){
+        p <- p + scale_x_discrete(expand=c(0,0))
       } else {
-        p <- p + scale_x_continuous(expand=c(0,0)) +
-                 scale_y_continuous(expand=c(0,0))
+        p <- p + scale_x_continuous(expand=c(0,0))
       }
-    } else {
-        warning("Provided one continuous and one numeric variable. Will try to interpolate the numeric variable with twice as many categories as the original number of unique values.")
-        the_factor <- names(dat)[which(classes %in% c("factor", "character"))]
-        the_num <- names(dat)[which(!(classes %in% c("factor", "character")))]
-        dat <- do.call(rbind, lapply(levels(dat[[the_factor]]), function(x){
-          tmp_dat <- dat[with(dat, get(the_factor) == x), ]
-          data.frame(x, approx(tmp_dat[[the_num]], tmp_dat[[3]], n = length(unique(dat[[the_num]]))*2))
-        }))
-        names(dat) <- c(the_factor, the_num, target)
-
-      p <- ggplot(dat, aes_string(the_num, the_factor, fill = target)) +
-                  geom_raster() +
-                  scale_x_continuous(expand=c(0,0)) +
-                  scale_y_discrete(expand=c(0,0)) +
-                  scale_fill_gradient(low = "white", high = "black")
-    }
+      if(class(vars[2]) %in% c("factor", "character")){
+        p <- p + scale_y_discrete(expand=c(0,0))
+      } else {
+        p <- p + scale_y_continuous(expand=c(0,0))
+      }
   }
 
-  p <- p + theme_bw()
-  p
+  p + theme_bw() + scale_size(guide = 'none')
 }
