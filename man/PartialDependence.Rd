@@ -56,6 +56,7 @@ mf.random <- MetaForest(formula = yi ~ ., data = data,
                         tau2 = 0.2450)
 # Examine univariate partial dependence plot for all variables in the model:
 PartialDependence(mf.random)
+\dontrun{
 # Examine bivariate partial dependence plot the interaction between X1 and X2:
 PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
 
@@ -79,4 +80,5 @@ rma.model.all <- rma(dat$yi, dat2$vi,
                   method="REML")
 PartialDependence(mf.model.all, rawdata = TRUE, pi = .95)
 PartialDependence(rma.model.all, rawdata = TRUE, pi = .95)
+}
 }
