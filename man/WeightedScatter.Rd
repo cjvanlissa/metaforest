@@ -6,8 +6,8 @@
 a function of either continuous (numeric, integer) or categorical (factor,
 character) predictors.}
 \usage{
-WeightedScatter(data, yi = "yi", vi = "vi", vars = "all.continuous",
-  tau2 = NULL, summarize = FALSE)
+WeightedScatter(data, yi = "yi", vi = "vi", vars = NULL, tau2 = NULL,
+  summarize = TRUE)
 }
 \arguments{
 \item{data}{A data.frame.}
@@ -21,10 +21,9 @@ the variances of the effect sizes. Defaults to \code{"vi"}. By default,
 weights summarize the data set at hand, rather than generalizing to the
 population.}
 
-\item{vars}{Character vector containing either 1) the names of specific
-moderator variables to plot, or 2)  scatterplots. If empty, all moderators
-are plotted. Note, however, that continuous and categorical variables cannot
-be plotted at the same time.}
+\item{vars}{Character vector containing the names of specific moderator
+variables to plot. When set to \code{NULL}, the default, all moderators
+are plotted.}
 
 \item{tau2}{Numeric. Provide an optional value for tau2. If this value is
 provided, random-effects weights will be used instead of fixed-effects
@@ -47,10 +46,11 @@ character) predictors.
 \examples{
 set.seed(42)
 data <- SimulateSMD(k_train = 100, model = es * x[, 1] + es * x[, 2] + es *
-                                           x[, 1] * x[, 2])$training
-WeightedScatter(data, summarize = TRUE)
+                      x[, 1] * x[, 2])$training
+data$X2 <- cut(data$X2, breaks = 2, labels = c("Low", "High"))
+data$X3 <- cut(data$X3, breaks = 2, labels = c("Small", "Big"))
+WeightedScatter(data, summarize = FALSE)
+WeightedScatter(data, vars = c("X3"))
+WeightedScatter(data, vars = c("X1", "X3"))
 WeightedScatter(data, tau2 = .04)
-data$X2 <- factor(ifelse(data$X2 > mean(data$X2), "Low", "High"))
-data$X3 <- factor(ifelse(data$X3 > mean(data$X3), "Small", "Big"))
-WeightedScatter(data, vars = "all.factors", summarize = TRUE)
 }

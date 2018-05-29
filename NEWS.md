@@ -1,3 +1,12 @@
+##### Version 0.1.2
+* Rewrote WeightedScatter to jointly plot numeric and factor variables
+* Rewrote PartialDependence to be an S3 generic, with methods for metaforest and
+  rma models
+* Rewrote PartialDependence to jointly plot numeric and factor variables
+* Added ModelInfo_mf(), which returns a ModelInfo list for using metaforest with
+  caret
+* Added ModelInfo_rma(), which returns a ModelInfo list for using rma with caret
+
 ##### Version 0.1.1
 * Substantial update to PartialDependence
 * PartialDependence now plots percentile interval for predictions

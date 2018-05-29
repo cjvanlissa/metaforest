@@ -2,14 +2,13 @@
 % Please edit documentation in R/PartialDependence.R
 \name{PartialDependence}
 \alias{PartialDependence}
-\title{Plots partial dependence plots for a MetaForest object, using the function
-\code{partial_dependence()} from the package \code{edarf}.}
+\title{PartialDependence: Partial dependence plots}
 \usage{
-PartialDependence(mf, vars = NULL, interaction = FALSE, pi = NULL,
+PartialDependence(x, vars = NULL, interaction = FALSE, pi = NULL,
   rawdata = FALSE, resolution = NULL, ...)
 }
 \arguments{
-\item{mf}{MetaForest object.}
+\item{x}{Model object.}
 
 \item{vars}{Character vector containing the moderator names for which to plot
 partial dependence plots. If empty, all moderators are plotted.}
@@ -18,17 +17,18 @@ partial dependence plots. If empty, all moderators are plotted.}
 be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.}
 
 \item{pi}{Numeric (0-1). What percentile interval should be plotted for the
-partial dependence predictions? Defaults to NULL. To obtain a 95\% confidence
-interval, set to \code{.95}.}
+partial dependence predictions? Defaults to NULL. To obtain a 95\% interval,
+set to \code{.95}.}
 
 \item{rawdata}{Logical, indicating whether to plot weighted raw data.
-Defaults to FALSE. Uses the same weights as the MetaForest object passed.}
+Defaults to FALSE. Uses the same weights as the model object passed to the
+\code{x} argument.}
 
 \item{resolution}{Integer vector of length two, giving the resolution of the
 partial predictions. The first element indicates the resolution of the
-partial predictions; the second element gives the number of rows of the data
-to be sampled without replacement when averaging over values of the other
-predictors.}
+partial predictions; for Monte-Carlo integration, the second element gives
+the number of rows of the data to be sampled without replacement when
+averaging over values of the other predictors.}
 
 \item{...}{Additional arguments to be passed to \code{marginalPrediction}.}
 }
@@ -36,18 +36,47 @@ predictors.}
 A ggplot object.
 }
 \description{
-Plots partial dependence plots for a MetaForest object, using the function
-\code{partial_dependence()} from the package \code{edarf}.
+Partial dependence plots
+}
+\details{
+Plots partial dependence plots (predicted effect size as a function of the
+value of each predictor variable) for a MetaForest- or rma model object. For
+rma models, it is advisable to mean-center numeric predictors, and to not
+include interaction effects, except when the rma model is bivariate, and the
+\code{interaction} argument is set to \code{TRUE}.
 }
 \examples{
+# Partial dependence plot for MetaForest() model:
 set.seed(42)
 data <- SimulateSMD(k_train = 100, model = es * x[, 1] + es * x[, 2] + es *
-                                           x[, 1] * x[, 2])
-mf.random <- MetaForest(formula = yi ~ ., data = data$training,
+                                           x[, 1] * x[, 2])$training
+data$X2 <- cut(data$X2, breaks = 2, labels = c("Low", "High"))
+mf.random <- MetaForest(formula = yi ~ ., data = data,
                         whichweights = "random", method = "DL",
                         tau2 = 0.2450)
-#Examine univariate partial dependence plot for all variables in the model:
+# Examine univariate partial dependence plot for all variables in the model:
 PartialDependence(mf.random)
-#Examine bivariate partial dependence plot the interaction between X1 and X2:
+# Examine bivariate partial dependence plot the interaction between X1 and X2:
 PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
+
+# Partial dependence plot for metafor rma() model:
+dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
+dat$yi <- as.numeric(dat$yi)
+dat$alloc <- factor(dat$alloc)
+dat$ablat_d <- cut(dat$ablat, breaks = 2, labels = c("low", "high"))
+# Demonstrate partial dependence plot for a bivariate interaction
+rma.model.int <- rma(yi, vi, mods=cbind(ablat, tpos),
+                     data=dat, method="REML")
+PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
+                  interaction = TRUE)
+# Compare partial dependence for metaforest and rma
+dat2 <- dat
+dat2[3:7] <- lapply(dat2[3:7],
+                    function(x){as.numeric(scale(x, scale = FALSE))})
+mf.model.all <- MetaForest(yi ~ ., dat2[, c(3:11)])
+rma.model.all <- rma(dat$yi, dat2$vi,
+                  mods = model.matrix(yi~., dat2[, c(3:10)])[, -1],
+                  method="REML")
+PartialDependence(mf.model.all, rawdata = TRUE, pi = .95)
+PartialDependence(rma.model.all, rawdata = TRUE, pi = .95)
 }
