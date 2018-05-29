@@ -2,7 +2,7 @@
 % Please edit documentation in R/ModelInfo_mf.R
 \name{ModelInfo_mf}
 \alias{ModelInfo_mf}
-\title{Returns a metaforest ModelInfo list for use with caret}
+\title{Returns a MetaForest ModelInfo list for use with caret}
 \usage{
 ModelInfo_mf()
 }
@@ -11,9 +11,9 @@ ModelInfo list of length 17.
 }
 \description{
 This function allows users to rely on the powerful \code{caret} package for
-cross-validating and tuning a metaforest analysis. Methods for MetaForest
+cross-validating and tuning a MetaForest analysis. Methods for MetaForest
 are not included in the caret package, because the interface of caret is not
-entirely compatible with metaforest's model call. Specifically, metaforest is
+entirely compatible with MetaForest's model call. Specifically, MetaForest is
 not compatible with the \code{train} methods for classes 'formula' or
 'recipe', because the variance of the effect size must be a column of the
 training data x. The name of this column is specified using the argument
@@ -47,7 +47,7 @@ cv_mf_fit <- train(y = data$yi, x = data[,c(3:13, 16)],
                    method = ModelInfo_mf(), trControl = fit_control)
 
 
-# Cross-validated clustered metaforest
+# Cross-validated clustered MetaForest
 data <- get(data(dat.bourassa1996))
 data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
                data = data, add = 1/2, to = "all")
@@ -57,7 +57,7 @@ data$yi <- as.numeric(data$yi)
 # Set up 10-fold grouped CV
 fit_control <- trainControl(method = "cv", index = groupKFold(data$sample,
                             k = 10))
-# Set up a custom tuning grid for the three tuning parameters of metaforest
+# Set up a custom tuning grid for the three tuning parameters of MetaForest
 rf_grid <- expand.grid(whichweights = c("random", "fixed", "unif"),
                        mtry = c(2, 4, 6),
                        min.node.size = c(2, 4, 6))
