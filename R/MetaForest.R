@@ -90,6 +90,9 @@ MetaForest <- function(formula, data, vi = "vi", whichweights = "random",
                        num.trees = 500, mtry = NULL, method = "REML",
                        tau2 = NULL, ...) {
     args <- match.call()
+    if(grepl("(\\*|:|-)", formula[3])){
+      stop("MetaForest only accepts additive model formulae, because the underlying regression trees algorithm captures interactions as a sequence of consecutive splits on the interacting variables.")
+    }
     yi <- as.character(formula[2])
     mods <- get_all_vars(formula, data)
     if(vi %in% names(mods)) mods <- mods[-match(vi, names(mods))]

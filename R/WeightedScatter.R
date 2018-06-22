@@ -21,7 +21,7 @@
 #' using [stats::loess()] for less than 1000 observations, and [mgcv::gam()] for
 #' larger datasets. For categorical variables, box-and-whiskers plots are
 #' displayed. Outliers are omitted, because the raw data fulfill this function.
-#' @return A ggplot object.
+#' @return A gtable object.
 #' @import ggplot2
 #' @importFrom grid nullGrob textGrob grobWidth grid.newpage grid.draw
 #' @importFrom gtable gtable_matrix gtable_add_cols gtable_add_grob
@@ -35,7 +35,10 @@
 #' WeightedScatter(data, summarize = FALSE)
 #' WeightedScatter(data, vars = c("X3"))
 #' WeightedScatter(data, vars = c("X1", "X3"))
+#' # Save to file
+#' pdf("ws.plot.pdf")
 #' WeightedScatter(data, tau2 = .04)
+#' dev.off()
 WeightedScatter <-
   function(data,
            yi = "yi",
@@ -132,5 +135,6 @@ WeightedScatter <-
     gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
     grid.newpage()
     grid.draw(gt)
+    invisible(gt)
   }
 

@@ -24,7 +24,7 @@
 #' the number of rows of the data to be sampled without replacement when
 #' averaging over values of the other predictors.
 #' @param ... Additional arguments to be passed to \code{marginalPrediction}.
-#' @return A ggplot object.
+#' @return A gtable object.
 #' @import ggplot2
 #' @importFrom mmpf marginalPrediction
 #' @export
@@ -41,8 +41,11 @@
 #' PartialDependence(mf.random)
 #' \dontrun{
 #' # Examine bivariate partial dependence plot the interaction between X1 and X2:
-#' PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
-#'
+#' pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
+#' # Save to pdf file
+#' pdf("pd_plot.pdf")
+#' grid.draw(pd.plot)
+#' dev.off()
 #' # Partial dependence plot for metafor rma() model:
 #' dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 #' dat$yi <- as.numeric(dat$yi)
@@ -53,6 +56,7 @@
 #'                      data=dat, method="REML")
 #' PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
 #'                   interaction = TRUE)
+#'
 #' # Compare partial dependence for metaforest and rma
 #' dat2 <- dat
 #' dat2[3:7] <- lapply(dat2[3:7],
@@ -105,7 +109,6 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
     args[["aggregate.fun"]] <- function(x){ c(sum(x)/length(x), quantile(x, c((.5 * (1 - pi)), 1 - (.5 * (1 - pi))))) }
   }
   if(interaction) {
-    #apply(pd[, c(1, 2)], 2, function(x){ table(diff(x))})
     args[["vars"]] <- select_vars
     pd = do.call("marginalPrediction", args)
   } else {
@@ -187,7 +190,6 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
         }
         if(rawdata){
           raw.data <- data.frame(wi = x$weights, x$data[, c(target, names(.plot)[1])])
-          #raw.data[[names(.plot)[1]]] <-
           p <- p + geom_jitter(data = raw.data, width = .2, height = 0, alpha=.1, aes_string(x = names(.plot)[1],
                                                                                  y = target,
                                                                                  size = "wi"))
@@ -226,9 +228,6 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
     gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
                           l = 1, r = 1, z = Inf)
     gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
-    grid.newpage()
-    grid.draw(gt)
-
   } else { #If an interaction plot is requested
     p <- ggplot(pd, aes_string(x = names(pd)[1], y = names(pd)[2], fill = "preds")) +
       geom_raster() +
@@ -243,9 +242,16 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
     } else {
       p <- p + scale_y_continuous(expand=c(0,0))
     }
-    p + theme_bw()
+    p <- p + theme_bw()
+    gt <- gtable_matrix("partial.dependence",
+                        matrix(list(suppressMessages(ggplotGrob(p))),
+                               nrow = 1, byrow = TRUE),
+                        widths = unit(1, "null"),
+                        heights = unit(1, "null"))
   }
-
+  grid.newpage()
+  grid.draw(gt)
+  invisible(gt)
 }
 
 #' @export
@@ -433,9 +439,6 @@ PartialDependence.rma = function(x, vars = NULL, interaction = FALSE, pi = NULL,
     gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
                           l = 1, r = 1, z = Inf)
     gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
-    grid.newpage()
-    grid.draw(gt)
-
   } else { #If an interaction plot is requested
     p <- ggplot(pd, aes_string(select_vars[1], select_vars[2], fill = "pred")) +
       geom_raster() +
@@ -450,8 +453,16 @@ PartialDependence.rma = function(x, vars = NULL, interaction = FALSE, pi = NULL,
     } else {
       p <- p + scale_y_continuous(expand=c(0,0))
     }
-    p + theme_bw()
+    p <- p + theme_bw()
+    gt <- gtable_matrix("partial.dependence",
+                        matrix(list(suppressMessages(ggplotGrob(p))),
+                               nrow = 1, byrow = TRUE),
+                        widths = unit(1, "null"),
+                        heights = unit(1, "null"))
   }
+  grid.newpage()
+  grid.draw(gt)
+  invisible(gt)
 }
 
 

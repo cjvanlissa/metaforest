@@ -78,6 +78,9 @@ ClusterMF <- function(formula, data, vi = "vi", study = NULL,
                       method = "REML", tau2 = NULL, ...) {
     if(is.null(study)){ stop("Please provide a valid \"study\" column name.")}
     args <- match.call()
+    if(grepl("(\\*|:|-)", formula[3])){
+      stop("MetaForest only accepts additive model formulae, because the underlying regression trees algorithm captures interactions as a sequence of consecutive splits on the interacting variables.")
+    }
     yi <- as.character(formula[2])
     mods <- get_all_vars(formula, data)
     if(vi %in% names(mods)) mods <- mods[-match(vi, names(mods))]
