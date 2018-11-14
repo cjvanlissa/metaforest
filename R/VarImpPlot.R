@@ -18,7 +18,7 @@
 VarImpPlot <- function(mf, n.var = 30, sort = TRUE) {
     if (!inherits(mf, c("MetaForest", "ranger")))
       stop("Argument 'mf' must be an object of class \"MetaForest\" or \"ranger\".")
-    if(class(mf) == "MetaForest"){
+    if(inherits(mf, "MetaForest")){
       ranger_object <- mf$forest
     } else {
       ranger_object <- mf

@@ -103,21 +103,12 @@ ModelInfo_mf <- function(){
                     fit = function(x, y, wts, param, lev, last, classProbs, ...) {
                     if(!is.data.frame(x)) x <- as.data.frame(x)
                     x$.outcome <- y
-                    if(!hasArg(study)) {
-                    out <- metaforest::MetaForest(.outcome ~ .,
+                    metaforest::MetaForest(.outcome ~ .,
                     data = x,
                     whichweights = param$whichweights,
                     mtry = param$mtry,
                     min.node.size = param$min.node.size,
                     ...)
-                    } else {
-                    out <- metaforest::ClusterMF(.outcome ~ .,
-                    data = x,
-                    whichweights = param$whichweights,
-                    mtry = param$mtry,
-                    min.node.size = param$min.node.size,
-                    ...)
-                    out
                     }
                     if(!last) out$y <- y
                     out

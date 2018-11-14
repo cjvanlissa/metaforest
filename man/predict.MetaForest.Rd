@@ -4,7 +4,8 @@
 \alias{predict.MetaForest}
 \title{MetaForest prediction}
 \usage{
-\method{predict}{MetaForest}(object, data = NULL, type = "response", ...)
+\method{predict}{MetaForest}(object, data = NULL, type = "response",
+  ...)
 }
 \arguments{
 \item{object}{\code{MetaForest} object.}

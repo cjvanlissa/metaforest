@@ -1,27 +1,22 @@
-#' Summarize MetaForest object.
-#'
-#' @param object an object for which a summary is desired.
-#' @param ... additional arguments affecting the summary produced.
-#' @param digits the number of digits desired, defaults to 2.
+#' @method summary MetaForest
 #' @export
-#' @examples
-#' \dontshow{
-#' set.seed(64)
-#' data <- SimulateSMD()
-#' sum <- summary(mf.random <- MetaForest(formula = yi ~ .,
-#'                data = data$training, whichweights = "random"), digits = 5)
-#' sum
-#' }
-summary.MetaForest <- function(object, ..., digits = 2) {
-    if (!inherits(object, "MetaForest"))
-      stop("Object must be of class \"MetaForest\".")
-  mf_type = as.character(object$call[1])
+summary.MetaForest <- function(object, ...) {
+  if(inherits(object, "cluster_mf")){
+    mf_type <- "Clustered MetaForest"
+    k <- paste0("Forest 1: ", sum(is.na(object$forest$cluster_forests$rf1$predictions)), ", Forest 2: ", sum(is.na(object$forest$cluster_forests$rf2$predictions)))
+    num.trees <- paste0("Two forests of length ", object$forest$num.trees/2)
+  } else {
+    mf_type <- "MetaForest"
+    k <- object$forest$num.samples
+    num.trees <- object$forest$num.trees
+  }
+
   forest.table <-
     cbind(
       type = mf_type,
-      k = ifelse(mf_type == "ClusterMF", paste0("Forest 1: ", sum(is.na(object$forest$cluster_forests$rf1$predictions)), ", Forest 2: ", sum(is.na(object$forest$cluster_forests$rf2$predictions))), object$forest$num.samples),
+      k = k,
       M = object$forest$num.independent.variables,
-      num.trees = ifelse(mf_type == "ClusterMF", paste0("Two forests of length ", object$forest$num.trees/2), object$forest$num.trees),
+      num.trees = num.trees,
       mtry = object$forest$mtry,
       min.node.size = object$forest$min.node.size,
       MSEoob = object$forest$prediction.error,
@@ -42,7 +37,7 @@ summary.MetaForest <- function(object, ..., digits = 2) {
     ci.ub = c(object$rma_before$ci.ub, object$rma_after$ci.ub),
     p = c(object$rma_before$pval, object$rma_after$pval)
   )
-  sum <- list(forest = forest.table, rma = rma.table, digits = digits)
+  sum <- list(forest = forest.table, rma = rma.table)
   class(sum) <- "summary.MetaForest"
-  return(sum)
+  sum
 }

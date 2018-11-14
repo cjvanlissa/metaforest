@@ -33,7 +33,7 @@ averaging over values of the other predictors.}
 \item{...}{Additional arguments to be passed to \code{marginalPrediction}.}
 }
 \value{
-A ggplot object.
+A gtable object.
 }
 \description{
 Partial dependence plots
@@ -58,8 +58,11 @@ mf.random <- MetaForest(formula = yi ~ ., data = data,
 PartialDependence(mf.random)
 \dontrun{
 # Examine bivariate partial dependence plot the interaction between X1 and X2:
-PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
-
+pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
+# Save to pdf file
+pdf("pd_plot.pdf")
+grid.draw(pd.plot)
+dev.off()
 # Partial dependence plot for metafor rma() model:
 dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 dat$yi <- as.numeric(dat$yi)
@@ -70,6 +73,7 @@ rma.model.int <- rma(yi, vi, mods=cbind(ablat, tpos),
                      data=dat, method="REML")
 PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
                   interaction = TRUE)
+
 # Compare partial dependence for metaforest and rma
 dat2 <- dat
 dat2[3:7] <- lapply(dat2[3:7],

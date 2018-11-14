@@ -6,8 +6,8 @@
 a function of either continuous (numeric, integer) or categorical (factor,
 character) predictors.}
 \usage{
-WeightedScatter(data, yi = "yi", vi = "vi", vars = NULL, tau2 = NULL,
-  summarize = TRUE)
+WeightedScatter(data, yi = "yi", vi = "vi", vars = NULL,
+  tau2 = NULL, summarize = TRUE)
 }
 \arguments{
 \item{data}{A data.frame.}
@@ -36,7 +36,7 @@ larger datasets. For categorical variables, box-and-whiskers plots are
 displayed. Outliers are omitted, because the raw data fulfill this function.}
 }
 \value{
-A ggplot object.
+A gtable object.
 }
 \description{
 Plots weighted scatterplots for meta-analytic data. Can plot effect size as
@@ -52,5 +52,8 @@ data$X3 <- cut(data$X3, breaks = 2, labels = c("Small", "Big"))
 WeightedScatter(data, summarize = FALSE)
 WeightedScatter(data, vars = c("X3"))
 WeightedScatter(data, vars = c("X1", "X3"))
+# Save to file
+pdf("ws.plot.pdf")
 WeightedScatter(data, tau2 = .04)
+dev.off()
 }

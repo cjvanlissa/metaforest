@@ -4,8 +4,9 @@
 \alias{MetaForest}
 \title{Conduct a MetaForest analysis to explore heterogeneity in meta-analytic data.}
 \usage{
-MetaForest(formula, data, vi = "vi", whichweights = "random",
-  num.trees = 500, mtry = NULL, method = "REML", tau2 = NULL, ...)
+MetaForest(formula, data, vi = "vi", study = NULL,
+  whichweights = "random", num.trees = 500, mtry = NULL,
+  method = "REML", tau2 = NULL, ...)
 }
 \arguments{
 \item{formula}{Formula. Specify a formula for the MetaForest model, for
@@ -19,6 +20,12 @@ Defaults to 100.}
 \item{vi}{Character. Specify the name of the column in the \code{data} that
 contains the variances of the effect sizes. This column will be removed from
 the data prior to analysis. Defaults to \code{"vi"}.}
+
+\item{study}{Character. Specify the name of the column in the \code{data}
+that contains the study id, if the data include multiple effect sizes per
+study. This column can be a vector of integers, or a factor. This column will
+be removed from the data prior to analysis. See \code{Details} for more
+information about analyzing dependent data.}
 
 \item{whichweights}{Character. Indicate what time of weights are required.
 A random-effects MetaForest is grown by specifying \code{whichweights =
@@ -34,8 +41,9 @@ split. Defaults to the square root of the number moderators (rounded down).}
 
 \item{method}{Character. Specify the method by which to estimate the residual
 variance. Can be set to one of the following: "DL", "HE", "SJ", "ML", "REML",
-"EB", "HS", or "GENQ". Default is "REML". See the \link[metafor]{metafor} package
-for more information about these estimators.}
+"EB", "HS", or "GENQ". Default is "REML". See the
+\code{\link[metafor:rma.uni]{metafor}} package for more information about
+these estimators.}
 
 \item{tau2}{Numeric. Specify a predetermined value for the residual
 heterogeneity. Entering a value here supersedes the estimated tau2 value.
@@ -59,13 +67,13 @@ MetaForest uses a weighted random forest to explore heterogeneity in
 meta-analytic data. MetaForest is a wrapper for \link[ranger]{ranger}
 (Wright & Ziegler, 2015). As input, MetaForest takes the study effect sizes
 and their variances (these can be computed, for example, using the
-\link[metafor]{metafor} package), as well as the moderators that are to be
-included in the model. By default, MetaForest uses random-effects weights,
-and estimates the between-studies variance using a restricted
-maximum-likelihood estimator. However, it may be beneficial to first conduct
-an unweighted MetaForest, and then use the estimated residual heterogeneity
-from this model as the estimate of \code{tau2} for a random-effects weighted
-MetaForest.
+\code{\link[metafor:rma.uni]{metafor}} package), as well as the moderators
+that are to be included in the model. By default, MetaForest uses
+random-effects weights, and estimates the between-studies variance using a
+restricted maximum-likelihood estimator. However, it may be beneficial to
+first conduct an unweighted MetaForest, and then use the estimated residual
+heterogeneity from this model as the estimate of \code{tau2} for a
+random-effects weighted MetaForest.
 }
 \examples{
 #Example 1:
