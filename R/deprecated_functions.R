@@ -6,8 +6,8 @@
 #' are thus included in the same cross-validation sample. Then, two random
 #' forests are grown on these cross-validation samples, and for each random
 #' forest, the other sample is used to calculate prediction error and variable
-#' importance (see Janitza, Celik, & Boulesteix, 2016). The \code{predict.MetaForest}
-#' method uses all trees from both forests.
+#' importance (see Janitza, Celik, & Boulesteix, 2016). The
+#' \code{predict.MetaForest} method uses all trees from both forests.
 #' @param formula Formula. Specify a formula for the MetaForest model, for
 #' example, \code{yi ~ .} to predict the outcome \code{yi} from all moderators
 #' in the data.
@@ -32,7 +32,7 @@
 #' @param method Character. Specify the method by which to estimate the residual
 #' variance. Can be set to one of the following: "DL", "HE", "SJ", "ML", "REML",
 #' "EB", "HS", or "GENQ". Default is "REML".
-#' See the \link[metafor]{metafor} package for more information.
+#' See the \code{\link[metafor:rma.uni]{metafor}} package for more information.
 #' @param tau2 Numeric. Specify a predetermined value for the residual
 #' heterogeneity. Entering a value here supersedes the estimated tau2 value.
 #' Defaults to NULL.
