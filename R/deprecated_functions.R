@@ -54,7 +54,7 @@
 #' data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
 #' data[c(5:8)] <- lapply(data[c(5:8)], factor)
 #' data$yi <- as.numeric(data$yi)
-#' mf.cluster.b1996 <- ClusterMF(formula = yi~ selection + investigator +
+#' mf.cluster.b1996 <- MetaForest(formula = yi~ selection + investigator +
 #'                               hand_assess + eye_assess + mage +sex,
 #'                               data, study = "sample",
 #'                               whichweights = "unif", num.trees = 300)

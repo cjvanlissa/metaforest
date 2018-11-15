@@ -74,7 +74,7 @@ data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
 data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
 data[c(5:8)] <- lapply(data[c(5:8)], factor)
 data$yi <- as.numeric(data$yi)
-preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
+tmp <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
                         mage +sex,
           data, study = "sample",
           whichweights = "unif", num.trees = 300,

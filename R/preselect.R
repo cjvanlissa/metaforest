@@ -15,7 +15,7 @@
 #' data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
 #' data[c(5:8)] <- lapply(data[c(5:8)], factor)
 #' data$yi <- as.numeric(data$yi)
-#' preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
+#' tmp <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
 #'                         mage +sex,
 #'           data, study = "sample",
 #'           whichweights = "unif", num.trees = 300,
@@ -55,12 +55,8 @@ preselect <- function(formula, data, vi = "vi", study = NULL,
   })))
   names(var_selected) <- mods
   outlist <- list(rsquared = r2s, selected = var_selected)
-  class(outlist) <- "mf_preselect"
+  class(outlist) <- c(paste0("mf_preselect", "_", algorithm), "mf_preselect")
   outlist
-}
-
-select_vars <- function(x, threshold){
-
 }
 
 recursive_mf <- function(modvars, settings){
@@ -84,35 +80,28 @@ bootstrap_mf <- function(modvars, settings){
 
 #' @method plot mf_preselect
 #' @export
-plot.mf_preselect <- function(x, y, ..., threshold = .01){
-  if(threshold > 1) stop("Argument 'threshold' must be between 0 and 1.")
-  imp <- x$selected
-  recursive <- FALSE
-  if(anyNA(imp)){
-    recursive <- TRUE
-    imp <- !is.na(imp)
-    imp <- colMeans(imp)
+plot.mf_preselect <- function(x, y, ...){
+  order_vars <- imp <- x$selected
+  if(inherits(x, "mf_preselect_recursive")){
+    excluded <- colMeans(is.na(imp))
+    order_vars[is.na(order_vars)] <- 0
+    names(imp) <- paste0(names(imp), ", ", formatC(colMeans(!is.na(imp))*100, digits = 0, format = "f"), "%")
+    ylabel <- "Recursive variable Importance (Permutation importance)"
   } else {
-    imp <- colMeans(imp)
-    threshold <- threshold*max(imp)
+    ylabel <- "Bootstrapped variable Importance (Permutation importance)"
   }
+  order_vars <- names(imp)[order(colMeans(order_vars), decreasing = FALSE)]
+  plotdat <- data.frame(Variable = ordered(rep(names(imp), each = nrow(imp)), levels = order_vars), Importance = c(as.matrix(imp)))
+  plotdat <- plotdat[complete.cases(plotdat), ]
 
-  xlabel <- ifelse(recursive, "Selected in % of iterations", "Mean bootstrapped variable importance")
-  data_var_selected <- data.frame(Variable = factor(names(imp)[order(imp, decreasing = FALSE)],
-                                  levels = names(imp)[order(imp, decreasing = FALSE)]),
-                                  Selected = ifelse(recursive, 100, 1)*imp[order(imp, decreasing = FALSE)])
-
-  p <- ggplot(data_var_selected, aes_string(y="Variable", x="Selected"))+
-    geom_segment(aes_string(x=0, xend="Selected", y="Variable", yend="Variable"), colour = "grey50", linetype = 2)+
-    geom_vline(xintercept = 0, colour = "grey50", linetype = 1)+
-    geom_point(shape=1, size=2) +
-    geom_vline(xintercept = threshold, linetype = 3)+
-    xlab(xlabel)+
-    theme_bw()+
-    theme(panel.grid.major.x = element_blank(),
-          panel.grid.minor.x = element_blank(),
-          axis.title.y=element_blank())
-  p
+  ggplot(plotdat, aes_string(x = "Variable", y = "Importance")) +
+    geom_boxplot(color="black", size=0.2, outlier.shape = NA) +
+    geom_jitter(width = .2, alpha = .2) +
+    theme_bw() +
+    geom_hline(yintercept = 0, colour = "grey50", linetype = 1) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(), axis.title.y = element_blank()) +
+    ylab(ylabel) +
+    coord_flip()
 }
 
 
@@ -120,7 +109,7 @@ plot.mf_preselect <- function(x, y, ..., threshold = .01){
 #' @export
 print.mf_preselect <- function(x, digits = 3, ...){
   imp <- x$selected
-  if(anyNA(imp)){
+  if(inherits(x, "mf_preselect_recursive")){
     imp <- !is.na(imp)
     cat("Percentage of replications in which each variable was retained in final model:\n")
     imp <- colMeans(imp)
@@ -134,3 +123,70 @@ print.mf_preselect <- function(x, digits = 3, ...){
   }
   cat("\n\nR2 median: ", median(x$rsquared), "\nR2 sd:", sd(x$rsquared))
 }
+
+
+#' @title Extract variable names from mf_preselect object
+#' @description Returns a vector of variable names from an mf_preselect object,
+#' based on a cutoff criterion provided.
+#' @param x Object of class mf_preselect.
+#' @param cutoff Numeric. Must be a value between 0 and 1. By default, uses .95
+#' for bootstrapped preselection, and .1 for recursive preselection.
+#' @param criterion Character. Which criterion to use. See \code{Details} for
+#' more information. By default, uses 'ci' (confidence interval) for
+#' bootstrapped preselection, and 'p' (proportion) for recursive preselection.
+#' @return Character vector.
+#' @details For \code{criterion = 'p'}, the function evaluates the proportion of
+#' replications in which a variable achieved a positive (>0) variable
+#' importance. For \code{criterion = 'ci'}, the function evaluates whether the
+#' lower bound of a confidence interval of a variable's importance across
+#' replications exceeds zero. The width of the confidence interval is determined
+#' by \code{cutoff}.
+#'
+#' For recursive preselection, any variable not included in a final
+#' model is assigned zero importance.
+#' @examples
+#' \dontrun{
+#' data <- get(data(dat.bourassa1996))
+#' data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
+#'                data = data, add = 1/2, to = "all")
+#' data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
+#' data[c(5:8)] <- lapply(data[c(5:8)], factor)
+#' data$yi <- as.numeric(data$yi)
+#' preselected <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
+#'                         mage +sex,
+#'           data, study = "sample",
+#'           whichweights = "unif", num.trees = 300,
+#'           replications = 10,
+#'           algorithm = "bootstrap")
+#' select_vars(preselected)
+#' }
+#' @rdname select_vars
+#' @export
+#'
+
+select_vars <- function(x,
+                        cutoff = NULL,
+                        criterion = NULL) {
+  if (!inherits(x, "mf_preselect"))
+    stop("Function select_vars() requires an object of class 'mf_preselect'.")
+  if (!is.null(cutoff)){
+    if(cutoff < 0 | cutoff > 1) stop("Argument 'criterion' must be a number between 0 and 1.")
+  }
+  if (inherits(x, "mf_preselect_recursive")) {
+    if (is.null(cutoff))
+      cutoff <- .1
+    if (is.null(criterion))
+      criterion <- "p"
+  } else {
+    if (is.null(cutoff))
+      cutoff <- .95
+    if (is.null(criterion))
+      criterion <- "ci"
+  }
+  imp <- x$selected
+  imp[is.na(imp)] <- 0
+  names(imp)[switch(criterion,
+                    p = colMeans(imp > 0) > cutoff,
+                    ci = sapply(imp, quantile, (1 - cutoff) / 2) > 0)]
+}
+
