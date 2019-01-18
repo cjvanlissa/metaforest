@@ -1,4 +1,4 @@
-MF <- function(formula, data, vi = "vi", whichweights = "random",
+MF <- function(formula, whichweights = "random",
                        num.trees = 500, mtry = NULL, method = "REML",
                        tau2 = NULL, ..., v, df) {
     y <- df[[1]]

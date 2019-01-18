@@ -61,6 +61,7 @@ ModelInfo_rma <- function(){
                     },
                     predict = function(modelFit, newdata, submodels = NULL) {
                     if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+                    colnames(newdata) <- NULL
                     predict.rma(modelFit, newdata)$pred
                     },
                     prob = NULL,

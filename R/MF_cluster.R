@@ -1,6 +1,6 @@
-MF_cluster <- function(formula, data, vi = "vi", study = NULL,
-                      whichweights = "random", num.trees = 500, mtry = NULL,
-                      method = "REML", tau2 = NULL, ..., v, df, id) {
+MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
+                       mtry = NULL, method = "REML", tau2 = NULL, ...,
+                       v, df, id) {
     args <- match.call()[-1]
     if(!(num.trees%%2 == 0)){
       message("Conducting a clustered MetaForest analysis with an odd value of num.trees; num.trees has been rounded up to the nearest even number.")
@@ -44,7 +44,7 @@ MF_cluster <- function(formula, data, vi = "vi", study = NULL,
 
       ranger(
         formula = formula,
-        data = data,
+        data = df,
         num.trees = num.trees/2,
         mtry = mtry,
         importance = "permutation",
@@ -86,7 +86,7 @@ MF_cluster <- function(formula, data, vi = "vi", study = NULL,
                    )
     class(forest) <- "ranger"
     class(forest$forest) <- "ranger.forest"
-    output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, data = data, vi = v, study = id, weights = metaweights)
+    output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, data = df, vi = v, study = id, weights = metaweights)
     class(output) <- c("cluster_mf", "MetaForest")
     output
 }

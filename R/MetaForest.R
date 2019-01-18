@@ -103,10 +103,12 @@ MetaForest <- function(formula, data, vi = "vi", study = NULL,
     args <- as.list(cl)[-1]
 
     df <- get_all_vars(formula, data = data)
+
     if(vi %in% names(df)) df <- df[-match(vi, names(df))]
     args[["v"]] <- data[[vi]]
-    args[["formula"]] <- paste(formula[2], formula[3],sep = " ~ ")
 
+    args[["formula"]] <- paste(formula[2], formula[3],sep = " ~ ")
+    args[["data"]] <- NULL
     if(is.null(study)){
       args[["df"]] <- df
       output <- do.call(MF, args)
@@ -114,6 +116,7 @@ MetaForest <- function(formula, data, vi = "vi", study = NULL,
       if(study %in% names(df)) df <- df[-match(study, names(df))]
       args[["df"]] <- df
       args[["id"]] <- data[[study]]
+      args[["study"]] <- NULL
       output <- do.call(MF_cluster, args)
     }
     output$call <- cl
