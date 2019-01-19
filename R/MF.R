@@ -21,10 +21,18 @@ MF <- function(formula, whichweights = "random",
                          write.forest = TRUE,
                          case.weights = metaweights, ...)
     mf$call <- formula
-
+    # Temporary fix to deal with https://github.com/imbs-hl/ranger/issues/201
+    # that is, forests sometimes return NaN predictions. Just replace them with
+    # predictions on "new data":
+    if(anyNA(mf$predictions)){
+      which_na <- is.na(mf$predictions)
+      pred_df <- df[which_na, -1]
+      mf$predictions[which_na] <- predict(mf, pred_df)$predictions
+      warning("Some OOB predictions were NaN, and were replaced with predictions across all trees.")
+    }
+    # End of fix
     residuals <- y - mf$predictions
     rma_after <- metafor::rma(yi = residuals, vi = v, method = method)
-
     output <- list(forest = mf, rma_before = rma_before, rma_after = rma_after, data = df, vi = v, weights = metaweights)
     class(output) <- "MetaForest"
     output

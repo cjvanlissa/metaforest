@@ -114,9 +114,7 @@ ModelInfo_mf <- function(){
                     args[['lev']] <- NULL
                     args[['last']] <- NULL
                     args[['classProbs']] <- NULL
-                    out <- do.call(metaforest::MetaForest, args)
-                    if(!last) out$y <- y
-                    out
+                    do.call(metaforest::MetaForest, args)
                     },
 
                     predict = function(modelFit, newdata, submodels = NULL) {
