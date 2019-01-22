@@ -11,21 +11,22 @@ MetaForest(formula, data, vi = "vi", study = NULL,
 \arguments{
 \item{formula}{Formula. Specify a formula for the MetaForest model, for
 example, \code{yi ~ .} to predict the outcome \code{yi} from all moderators
-in the data.}
+in the data. Only additive formulas are allowed (i.e., \code{x1+x2+x3}).
+Interaction terms and non-linear terms are not required, as the random
+forests algorithm inherently captures these associations.}
 
-\item{data}{Data.frame. Provide a data.frame containing the effect size,
-moderators, and the variance of the effect size.
-Defaults to 100.}
+\item{data}{A data.frame containing the effect size, moderators, and the
+variance of the effect size.}
 
 \item{vi}{Character. Specify the name of the column in the \code{data} that
 contains the variances of the effect sizes. This column will be removed from
 the data prior to analysis. Defaults to \code{"vi"}.}
 
-\item{study}{Character. Specify the name of the column in the \code{data}
-that contains the study id, if the data include multiple effect sizes per
-study. This column can be a vector of integers, or a factor. This column will
-be removed from the data prior to analysis. See \code{Details} for more
-information about analyzing dependent data.}
+\item{study}{Character. Optionally, specify the name of the column in the
+\code{data} that contains the study id. Use this when the data includes
+multiple effect sizes per study. This column can be a vector of integers, or
+a factor. This column will be removed from the data prior to analysis.
+See \code{Details} for more information about analyzing dependent data.}
 
 \item{whichweights}{Character. Indicate what time of weights are required.
 A random-effects MetaForest is grown by specifying \code{whichweights =
@@ -74,6 +75,20 @@ restricted maximum-likelihood estimator. However, it may be beneficial to
 first conduct an unweighted MetaForest, and then use the estimated residual
 heterogeneity from this model as the estimate of \code{tau2} for a
 random-effects weighted MetaForest.
+}
+\details{
+For dependent data, a clustered MetaForest analysis is more
+appropriate. This is because the predictive performance of a MetaForest
+analysis is evaluated on out-of-bootstrap cases, and when cases out of the
+bootstrap sample originate from the same study, the model will be overly
+confident in its ability to predict their value. When the MetaForest is
+clustered by the \code{study} variable, the dataset is first split into two
+cross-validation samples by study. All dependent effect sizes from each study
+are thus included in the same cross-validation sample. Then, two random
+forests are grown on these cross-validation samples, and for each random
+forest, the other sample is used to calculate prediction error and variable
+importance (see \href{http://doi.org/10.1007/s11634-016-0276-4}{Janitza,
+Celik, & Boulesteix, 2016}).
 }
 \examples{
 #Example 1:

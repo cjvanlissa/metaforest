@@ -1,0 +1,5 @@
+rm(list=ls())
+library(testthat)
+library(caret)
+library(metaforest)
+test_check("metaforest")

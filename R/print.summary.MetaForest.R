@@ -13,18 +13,15 @@
 #' print(summary(mf.random), digits = 3)
 #' }
 print.summary.MetaForest <- function(x, digits, ...) {
-    if (!inherits(x, "summary.MetaForest"))
-      stop("Argument 'x' must be an object of class \"summary.MetaForest\".")
     if (missing(digits)){
-      digits <- x$digits
+      digits <- 4
     }
+
     x[["forest"]][c(7, 8)] <- formatC(as.numeric(x[["forest"]][c(7, 8)]), digits = digits, format = "f")
-    colnames(x[["forest"]]) <- sprintf("%-30s", c("Type of analysis:", "Number of studies:", "Number of moderators:", "Number of trees in forest:", "Candidate variables per split:", "Minimum terminal node size:", "OOB prediction error (MSE):", "R squared (OOB):"))
-    rownames(x[["forest"]])<-""
+    names(x[["forest"]]) <- sprintf("%-30s", c("Type of analysis:", "Number of studies:", "Number of moderators:", "Number of trees in forest:", "Candidate variables per split:", "Minimum terminal node size:", "OOB prediction error (MSE):", "R squared (OOB):"))
 
     cat("MetaForest results\n")
-    print(t(x[["forest"]]), quote = FALSE)
-
+    prmatrix(as.matrix(x[["forest"]]), collab = "", quote = FALSE)
 
     x[["rma"]][ , -c(6)] <- formatC(x[["rma"]][ , -c(6)], digits = digits, format = "f")
 

@@ -23,6 +23,9 @@
 #' partial predictions; for Monte-Carlo integration, the second element gives
 #' the number of rows of the data to be sampled without replacement when
 #' averaging over values of the other predictors.
+#' @param output Character. What type of output should be returned? Defaults to
+#' \code{"plot"}, which returns and plots a gtable object. To obtain a list of
+#' \code{ggplot} objects instead, provide the argument \code{"list"}.
 #' @param ... Additional arguments to be passed to \code{marginalPrediction}.
 #' @return A gtable object.
 #' @import ggplot2
@@ -38,7 +41,7 @@
 #'                         whichweights = "random", method = "DL",
 #'                         tau2 = 0.2450)
 #' # Examine univariate partial dependence plot for all variables in the model:
-#' PartialDependence(mf.random)
+#' tmp <- PartialDependence(mf.random, pi = .8)
 #' \dontrun{
 #' # Examine bivariate partial dependence plot the interaction between X1 and X2:
 #' pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
@@ -68,12 +71,12 @@
 #' PartialDependence(mf.model.all, rawdata = TRUE, pi = .95)
 #' PartialDependence(rma.model.all, rawdata = TRUE, pi = .95)
 #' }
-PartialDependence <- function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, ...){
+PartialDependence <- function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, output = "plot", ...){
   UseMethod("PartialDependence")
 }
 
 #' @export
-PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, ...) {
+PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, output = "plot", ...) {
   if(is.null(vars)){
     select_vars <- names(x$forest$variable.importance)
   } else {
@@ -105,7 +108,7 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
     },
     ...
   )
-  if (!is.null(pi) & !interaction){
+  if(!is.null(pi) & !interaction){
     args[["aggregate.fun"]] <- function(x){ c(sum(x)/length(x), quantile(x, c((.5 * (1 - pi)), 1 - (.5 * (1 - pi))))) }
   }
   if(interaction) {
@@ -113,51 +116,28 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
     pd = do.call("marginalPrediction", args)
   } else {
     pd <- lapply(select_vars, function(.pred) {
-      if(!is.null(pi)){
-        pred_dat <-
-          do.call(
-            "marginalPrediction",
-            c(args, "vars" = .pred)
-          )
-        names(pred_dat)[c(3,4)] <- c("lower", "upper")
-        pred_dat
-      } else {
-        do.call(
-          "marginalPrediction",
-          c(args, "vars" = .pred)
-        )
-      }
+      args[["vars"]] <- .pred
+      dat <- do.call(
+        "marginalPrediction",
+        args)
+      names(dat) <- gsub("(%|1$)", "", names(dat))
+      dat
     })
 
-    if(is.null(pi)){
-      if(rawdata){
-        y_limits <- c(data[[target]], unlist(lapply(pd, '[', j = 2)))
-      } else {
-        y_limits <- unlist(lapply(pd, '[', j = 2))
-      }
+    # Calculate y limits of the plot
+    if(is.null(pi) & !rawdata){
+      y_limits <- range(unlist(lapply(pd, `[`, j = "preds")))
     } else {
-      if(rawdata){
-        y_limits <- c(data[[target]], unlist(lapply(pd, '[', j = c(2, 3, 4))))
-      } else {
-        y_limits <- unlist(lapply(pd, '[', j = c(2, 3, 4)))
-      }
+      y_limits <- range(x$data[[as.character(as.formula(x$call[2])[2])]])
     }
-
-    y_limits <- range(y_limits)
   }
 
-  n_grobs <- length(pd)
-  grob_rows <- floor(sqrt(n_grobs))
-  grob_cols <- ceiling(sqrt(n_grobs))
-  if((grob_rows*grob_cols) < n_grobs){
-    grob_rows <- grob_rows + 1
-  }
-
+  # Make list of plots
   if(!interaction) { #If no interaction is requested, plot univariate plots
-    plots <- lapply(1:n_grobs, function(.thisgrob){
-      .plot <- pd[[.thisgrob]]
+    plots <- lapply(1:length(pd), function(.thisgrob){
+      .plot <- data.frame(pd[[.thisgrob]], Variable = names(pd[[.thisgrob]])[1])
       p <-
-        ggplot(data.frame(.plot, Variable = names(.plot)[1]),
+        ggplot(.plot,
                aes_string(
                  x = names(.plot)[1],
                  y = names(.plot)[2])) +
@@ -165,14 +145,16 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
         theme_bw() +
         theme(legend.position = "none",
               axis.title.x = element_blank(),
-              axis.title.y = element_blank(),
+              #axis.title.y = element_blank(),
               plot.margin = unit(rep(.2, 4), "line"))+
-        scale_y_continuous(limits = y_limits)
+        scale_y_continuous(limits = y_limits)+
+        ylab(target)
 
       if(class(.plot[[1]]) %in% c("numeric", "integer")){
         p <- p + geom_line(aes(group=1)) + scale_x_continuous(expand = c(0,0))
         if(!is.null(pi)){
-          p <- p + geom_ribbon(aes_string(ymin = "lower", ymax = "upper"), alpha = .2)
+          p <- p + geom_ribbon(aes_string(ymin = names(.plot)[ncol(.plot)-2],
+                                          ymax =  names(.plot)[ncol(.plot)-1]), alpha = .2)
         }
         if(rawdata){
           raw.data <- data.frame(wi = x$weights, x$data[, c(target, names(.plot)[1])])
@@ -184,8 +166,8 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
         p <- p + geom_point(size = 5, shape = 18)
         if(!is.null(pi)){
           p <- p + geom_errorbar(aes_string(
-            ymin = "lower",
-            ymax =  "upper"),
+            ymin = names(.plot)[ncol(.plot)-2],
+            ymax =  names(.plot)[ncol(.plot)-1]),
             width = .4)
         }
         if(rawdata){
@@ -196,38 +178,10 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
         }
       }
 
-      if(!(.thisgrob %in% seq.int(1, n_grobs, by = grob_cols))){
-        p <- p + theme(
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()
-        )
-      }
-      suppressMessages(
-        ggplotGrob(p)
-      )
+      p
     })
-
-    if(n_grobs > 1){
-      plots[2:length(plots)] <- lapply(plots[2:length(plots)], function(x){
-        x$widths <- plots[[1]]$widths
-        x
-      })
-    }
-
-    if(n_grobs < (grob_cols * grob_rows)){
-      plots[(length(plots)+1):(grob_cols * grob_rows)] <- lapply((length(plots)+1):(grob_cols * grob_rows), function(x){nullGrob()})
-    }
-
-    gt <- gtable_matrix("partial.dependence",
-                        matrix(plots, nrow = grob_rows, byrow = TRUE),
-                        widths = unit(rep(1, grob_cols), "null"),
-                        heights = unit(rep(1, grob_rows), "null"))
-
-    left <- textGrob(target, rot = 90, just = c(.5, .5))
-    gt <- gtable_add_cols(gt, widths = grobWidth(left)+ unit(0.5, "line"), 0)
-    gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
-                          l = 1, r = 1, z = Inf)
-    gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
+    if(output == "list") return(plots)
+    merge_plots(plots)
   } else { #If an interaction plot is requested
     p <- ggplot(pd, aes_string(x = names(pd)[1], y = names(pd)[2], fill = "preds")) +
       geom_raster() +
@@ -243,15 +197,10 @@ PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi 
       p <- p + scale_y_continuous(expand=c(0,0))
     }
     p <- p + theme_bw()
-    gt <- gtable_matrix("partial.dependence",
-                        matrix(list(suppressMessages(ggplotGrob(p))),
-                               nrow = 1, byrow = TRUE),
-                        widths = unit(1, "null"),
-                        heights = unit(1, "null"))
+    if(output == "list") return(list(p))
+    merge_plots(p)
   }
-  grid.newpage()
-  grid.draw(gt)
-  invisible(gt)
+
 }
 
 #' @export

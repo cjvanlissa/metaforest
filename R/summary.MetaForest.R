@@ -12,7 +12,7 @@ summary.MetaForest <- function(object, ...) {
   }
 
   forest.table <-
-    cbind(
+    c(
       type = mf_type,
       k = k,
       M = object$forest$num.independent.variables,

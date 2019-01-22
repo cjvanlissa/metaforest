@@ -12,21 +12,22 @@ preselect(formula, data, vi = "vi", study = NULL,
 \arguments{
 \item{formula}{Formula. Specify a formula for the MetaForest model, for
 example, \code{yi ~ .} to predict the outcome \code{yi} from all moderators
-in the data.}
+in the data. Only additive formulas are allowed (i.e., \code{x1+x2+x3}).
+Interaction terms and non-linear terms are not required, as the random
+forests algorithm inherently captures these associations.}
 
-\item{data}{Data.frame. Provide a data.frame containing the effect size,
-moderators, and the variance of the effect size.
-Defaults to 100.}
+\item{data}{A data.frame containing the effect size, moderators, and the
+variance of the effect size.}
 
 \item{vi}{Character. Specify the name of the column in the \code{data} that
 contains the variances of the effect sizes. This column will be removed from
 the data prior to analysis. Defaults to \code{"vi"}.}
 
-\item{study}{Character. Specify the name of the column in the \code{data}
-that contains the study id, if the data include multiple effect sizes per
-study. This column can be a vector of integers, or a factor. This column will
-be removed from the data prior to analysis. See \code{Details} for more
-information about analyzing dependent data.}
+\item{study}{Character. Optionally, specify the name of the column in the
+\code{data} that contains the study id. Use this when the data includes
+multiple effect sizes per study. This column can be a vector of integers, or
+a factor. This column will be removed from the data prior to analysis.
+See \code{Details} for more information about analyzing dependent data.}
 
 \item{whichweights}{Character. Indicate what time of weights are required.
 A random-effects MetaForest is grown by specifying \code{whichweights =

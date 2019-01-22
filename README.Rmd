@@ -14,6 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+[![Travis-CI Build Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+
 # metaforest
 
 The goal of MetaForest is to explore heterogeneity in meta-analytic data, identify important moderators, and explore the functional form of the relationship between moderators and effect size. To do so, MetaForest conducts a weighted random forest analysis, using random-effects or fixed-effects weights, as in classic meta-analysis, or uniform weights (unweighted random forest). Simulation studies have demonstrated that this technique has substantial power to detect relevant moderators, even in datasets as small as 20 cases (based on cross-validated $R^2$). Using a variable importance plot, important moderators can be identified, and using partial prediction plots, the shape of the marginal relationship between moderators and effect size can be visualized. MetaForest can be readily integrated in classical meta-analytic approaches: If MetaForest is conducted as a primary analysis, classic meta-analysis can be used to quantify heterogeneity (in fact, MetaForest by default reports a random-effects meta-analysis on the raw data, and the residuals of the random forests analysis), or to provide a simplified representation of the linear effects of important predictors. Conversely, a theory-driven classical meta-analysis could be complemented by an exploratory MetaForest analysis, as a final check to ensure that important moderators have not been overlooked. We hope that this approach will be of use to researchers, and that the availability of user-friendly R functions will facilitate its adoption.

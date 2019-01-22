@@ -5,7 +5,7 @@
 \title{PartialDependence: Partial dependence plots}
 \usage{
 PartialDependence(x, vars = NULL, interaction = FALSE, pi = NULL,
-  rawdata = FALSE, resolution = NULL, ...)
+  rawdata = FALSE, resolution = NULL, output = "plot", ...)
 }
 \arguments{
 \item{x}{Model object.}
@@ -29,6 +29,10 @@ partial predictions. The first element indicates the resolution of the
 partial predictions; for Monte-Carlo integration, the second element gives
 the number of rows of the data to be sampled without replacement when
 averaging over values of the other predictors.}
+
+\item{output}{Character. What type of output should be returned? Defaults to
+\code{"plot"}, which returns and plots a gtable object. To obtain a list of
+\code{ggplot} objects instead, provide the argument \code{"list"}.}
 
 \item{...}{Additional arguments to be passed to \code{marginalPrediction}.}
 }
@@ -55,7 +59,7 @@ mf.random <- MetaForest(formula = yi ~ ., data = data,
                         whichweights = "random", method = "DL",
                         tau2 = 0.2450)
 # Examine univariate partial dependence plot for all variables in the model:
-PartialDependence(mf.random)
+tmp <- PartialDependence(mf.random, pi = .8)
 \dontrun{
 # Examine bivariate partial dependence plot the interaction between X1 and X2:
 pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
