@@ -4,17 +4,15 @@
 \alias{PartialDependence}
 \title{PartialDependence: Partial dependence plots}
 \usage{
-PartialDependence(x, vars = NULL, interaction = FALSE, pi = NULL,
-  rawdata = FALSE, resolution = NULL, output = "plot", ...)
+PartialDependence(x, vars = NULL, pi = NULL, rawdata = FALSE,
+  bw = FALSE, resolution = NULL, moderator = NULL,
+  mod_levels = NULL, output = "plot", ...)
 }
 \arguments{
 \item{x}{Model object.}
 
 \item{vars}{Character vector containing the moderator names for which to plot
 partial dependence plots. If empty, all moderators are plotted.}
-
-\item{interaction}{Logical, indicating whether a bivariate interaction should
-be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.}
 
 \item{pi}{Numeric (0-1). What percentile interval should be plotted for the
 partial dependence predictions? Defaults to NULL. To obtain a 95\% interval,
@@ -24,11 +22,29 @@ set to \code{.95}.}
 Defaults to FALSE. Uses the same weights as the model object passed to the
 \code{x} argument.}
 
+\item{bw}{Logical, indicating whether the plot should be black and white, or
+color.}
+
 \item{resolution}{Integer vector of length two, giving the resolution of the
 partial predictions. The first element indicates the resolution of the
 partial predictions; for Monte-Carlo integration, the second element gives
 the number of rows of the data to be sampled without replacement when
 averaging over values of the other predictors.}
+
+\item{moderator}{Atomic character vector, referencing the name of one
+variable in the model. Results in partial prediction plots, conditional on
+the moderator. If \code{moderator} references a factor variable, separate
+lines/boxplots are plotted for each factor level. If \code{moderator}
+references a numeric variable, heatmaps are plotted - unless the moderator is
+categorized using the \code{mod_levels} argument.}
+
+\item{mod_levels}{Vector. If \code{moderator} is continuous, specify
+thresholds for the \code{\link[base]{cut}} function. The continuous moderator
+is categorized, and predictions are based on the median moderator value
+within each category. You can call \code{\link[stats]{quantile}} to cut the
+moderator at specific quantiles. If \code{moderator} is a factor variable,
+you can use \code{mod_levels} to specify a character vector with the factor
+levels to retain in the plot (i.e., droping the other factor levels).}
 
 \item{output}{Character. What type of output should be returned? Defaults to
 \code{"plot"}, which returns and plots a gtable object. To obtain a list of
@@ -46,23 +62,23 @@ Partial dependence plots
 Plots partial dependence plots (predicted effect size as a function of the
 value of each predictor variable) for a MetaForest- or rma model object. For
 rma models, it is advisable to mean-center numeric predictors, and to not
-include interaction effects, except when the rma model is bivariate, and the
-\code{interaction} argument is set to \code{TRUE}.
+include plot_int effects, except when the rma model is bivariate, and the
+\code{plot_int} argument is set to \code{TRUE}.
 }
 \examples{
 # Partial dependence plot for MetaForest() model:
 set.seed(42)
-data <- SimulateSMD(k_train = 100, model = es * x[, 1] + es * x[, 2] + es *
+data <- SimulateSMD(k_train = 200, model = es * x[, 1] + es * x[, 2] + es *
                                            x[, 1] * x[, 2])$training
 data$X2 <- cut(data$X2, breaks = 2, labels = c("Low", "High"))
 mf.random <- MetaForest(formula = yi ~ ., data = data,
                         whichweights = "random", method = "DL",
                         tau2 = 0.2450)
 # Examine univariate partial dependence plot for all variables in the model:
-tmp <- PartialDependence(mf.random, pi = .8)
+PartialDependence(mf.random, pi = .8)
 \dontrun{
-# Examine bivariate partial dependence plot the interaction between X1 and X2:
-pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
+# Examine bivariate partial dependence plot the plot_int between X1 and X2:
+pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), plot_int = TRUE)
 # Save to pdf file
 pdf("pd_plot.pdf")
 grid.draw(pd.plot)
@@ -72,11 +88,11 @@ dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 dat$yi <- as.numeric(dat$yi)
 dat$alloc <- factor(dat$alloc)
 dat$ablat_d <- cut(dat$ablat, breaks = 2, labels = c("low", "high"))
-# Demonstrate partial dependence plot for a bivariate interaction
+# Demonstrate partial dependence plot for a bivariate plot_int
 rma.model.int <- rma(yi, vi, mods=cbind(ablat, tpos),
                      data=dat, method="REML")
 PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
-                  interaction = TRUE)
+                  plot_int = TRUE)
 
 # Compare partial dependence for metaforest and rma
 dat2 <- dat

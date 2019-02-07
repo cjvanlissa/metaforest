@@ -10,7 +10,8 @@ Depends:
 	ggplot2,
 	metafor,
 	ranger,
-	mmpf
+	data.table,
+	methods
 Imports:
   gtable,
   grid

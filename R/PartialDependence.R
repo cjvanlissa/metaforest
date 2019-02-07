@@ -3,48 +3,60 @@
 #' Plots partial dependence plots (predicted effect size as a function of the
 #' value of each predictor variable) for a MetaForest- or rma model object. For
 #' rma models, it is advisable to mean-center numeric predictors, and to not
-#' include interaction effects, except when the rma model is bivariate, and the
-#' \code{interaction} argument is set to \code{TRUE}.
+#' include plot_int effects, except when the rma model is bivariate, and the
+#' \code{plot_int} argument is set to \code{TRUE}.
 #'
 #' @title PartialDependence: Partial dependence plots
 #' @param x Model object.
 #' @param vars Character vector containing the moderator names for which to plot
 #' partial dependence plots. If empty, all moderators are plotted.
-#' @param interaction Logical, indicating whether a bivariate interaction should
-#' be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.
 #' @param pi Numeric (0-1). What percentile interval should be plotted for the
 #' partial dependence predictions? Defaults to NULL. To obtain a 95\% interval,
 #' set to \code{.95}.
 #' @param rawdata Logical, indicating whether to plot weighted raw data.
 #' Defaults to FALSE. Uses the same weights as the model object passed to the
 #' \code{x} argument.
+#' @param bw Logical, indicating whether the plot should be black and white, or
+#' color.
 #' @param resolution Integer vector of length two, giving the resolution of the
 #' partial predictions. The first element indicates the resolution of the
 #' partial predictions; for Monte-Carlo integration, the second element gives
 #' the number of rows of the data to be sampled without replacement when
 #' averaging over values of the other predictors.
+#' @param moderator Atomic character vector, referencing the name of one
+#' variable in the model. Results in partial prediction plots, conditional on
+#' the moderator. If \code{moderator} references a factor variable, separate
+#' lines/boxplots are plotted for each factor level. If \code{moderator}
+#' references a numeric variable, heatmaps are plotted - unless the moderator is
+#' categorized using the \code{mod_levels} argument.
+#' @param mod_levels Vector. If \code{moderator} is continuous, specify
+#' thresholds for the \code{\link[base]{cut}} function. The continuous moderator
+#' is categorized, and predictions are based on the median moderator value
+#' within each category. You can call \code{\link[stats]{quantile}} to cut the
+#' moderator at specific quantiles. If \code{moderator} is a factor variable,
+#' you can use \code{mod_levels} to specify a character vector with the factor
+#' levels to retain in the plot (i.e., droping the other factor levels).
 #' @param output Character. What type of output should be returned? Defaults to
 #' \code{"plot"}, which returns and plots a gtable object. To obtain a list of
 #' \code{ggplot} objects instead, provide the argument \code{"list"}.
 #' @param ... Additional arguments to be passed to \code{marginalPrediction}.
 #' @return A gtable object.
 #' @import ggplot2
-#' @importFrom mmpf marginalPrediction
-#' @export
+#' @importFrom methods hasArg
 #' @examples
 #' # Partial dependence plot for MetaForest() model:
 #' set.seed(42)
-#' data <- SimulateSMD(k_train = 100, model = es * x[, 1] + es * x[, 2] + es *
+#' data <- SimulateSMD(k_train = 200, model = es * x[, 1] + es * x[, 2] + es *
 #'                                            x[, 1] * x[, 2])$training
 #' data$X2 <- cut(data$X2, breaks = 2, labels = c("Low", "High"))
 #' mf.random <- MetaForest(formula = yi ~ ., data = data,
 #'                         whichweights = "random", method = "DL",
 #'                         tau2 = 0.2450)
 #' # Examine univariate partial dependence plot for all variables in the model:
-#' tmp <- PartialDependence(mf.random, pi = .8)
+#' PartialDependence(mf.random, pi = .8)
 #' \dontrun{
-#' # Examine bivariate partial dependence plot the interaction between X1 and X2:
-#' pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), interaction = TRUE)
+#' # Examine bivariate partial dependence plot the plot_int between X1 and X2:
+#' pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), plot_int = TRUE)
 #' # Save to pdf file
 #' pdf("pd_plot.pdf")
 #' grid.draw(pd.plot)
@@ -54,11 +66,11 @@
 #' dat$yi <- as.numeric(dat$yi)
 #' dat$alloc <- factor(dat$alloc)
 #' dat$ablat_d <- cut(dat$ablat, breaks = 2, labels = c("low", "high"))
-#' # Demonstrate partial dependence plot for a bivariate interaction
+#' # Demonstrate partial dependence plot for a bivariate plot_int
 #' rma.model.int <- rma(yi, vi, mods=cbind(ablat, tpos),
 #'                      data=dat, method="REML")
 #' PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
-#'                   interaction = TRUE)
+#'                   plot_int = TRUE)
 #'
 #' # Compare partial dependence for metaforest and rma
 #' dat2 <- dat
@@ -71,347 +83,397 @@
 #' PartialDependence(mf.model.all, rawdata = TRUE, pi = .95)
 #' PartialDependence(rma.model.all, rawdata = TRUE, pi = .95)
 #' }
-PartialDependence <- function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, output = "plot", ...){
-  UseMethod("PartialDependence")
-}
-
 #' @export
-PartialDependence.MetaForest = function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, output = "plot", ...) {
-  if(is.null(vars)){
-    select_vars <- names(x$forest$variable.importance)
-  } else {
-    select_vars <- vars[which(vars %in% names(x$forest$variable.importance))]
-  }
-  if(interaction & (length(select_vars) > 2 | length(select_vars) == 1)) {
-    stop("Only bivariate interactions can be plotted. Argument \'vars\' must be of length 2 when \'interaction = TRUE\'.", call. = FALSE)
-  }
-  data <- get_all_vars(as.formula(x$call[2]), x$data)
-  target <- as.character(as.formula(x$call[2])[2])
+PartialDependence <-
+  function(x,
+           vars = NULL,
+           pi = NULL,
+           rawdata = FALSE,
+           bw = FALSE,
+           resolution = NULL,
+           moderator = NULL,
+           mod_levels = NULL,
+           output = "plot",
+           ...) {
+    #    #'
+    #    #' #' @param plot_int Logical, indicating whether a bivariate plot_int should
+    #    #' be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.
 
-  numeric_vars <-
-    which(sapply(data[select_vars], class) %in% c("numeric", "integer"))
-
-  if(is.null(resolution)){
-    resolution <- c(min(nrow(unique(data[, select_vars, drop = FALSE])), 25L), nrow(data))
-  } else {
-    if(resolution[2] > nrow(data)){
-      warning("Second element of resolution cannot exceed the number of rows of the data. Set to ", nrow(data), call. = FALSE)
-      resolution[2] <- nrow(data)
+    # Check input arguments ---------------------------------------------------
+    if(hasArg("interaction")){
+      stop("The argument 'interaction' has been deprecated, and is replaced by the argument 'moderator'. See ?PartialDependence for help on how to use the 'moderator' argument." )
     }
-  }
-  args <- list(
-    "data" = data,
-    "n" = resolution,
-    "model" = x$forest,
-    "predict.fun" = function(object, newdata) {
-      predict(object, data = newdata)$predictions
-    },
-    ...
-  )
-  if(!is.null(pi) & !interaction){
-    args[["aggregate.fun"]] <- function(x){ c(sum(x)/length(x), quantile(x, c((.5 * (1 - pi)), 1 - (.5 * (1 - pi))))) }
-  }
-  if(interaction) {
-    args[["vars"]] <- select_vars
-    pd = do.call("marginalPrediction", args)
-  } else {
+    if (is.null(vars)) {
+      select_vars <- names(x$forest$variable.importance)
+    } else {
+      if (!class(vars) == "character") {
+        stop("Argument 'vars' must be a character string.", call. = FALSE)
+      }
+      select_vars <-
+        vars[which(vars %in% names(x$forest$variable.importance))]
+      if (length(select_vars) == 0)
+        stop("Argument 'vars' must be either NULL, or a vector of names of variables in the model.")
+    }
+    if (anyNA(match(
+      c(select_vars, moderator),
+      names(x$forest$variable.importance)
+    ))) {
+      stop(
+        "Arguments 'vars' and 'moderator' must correspond to names of variables in the model.",
+        call. = FALSE
+      )
+    }
+    if (!is.null(moderator)) {
+      select_vars <- select_vars[!select_vars == moderator]
+      if (!class(moderator) == "character") {
+        stop(
+          "Moderator must be a character string, corresponding to the name of a variable in the MetaForest analysis.",
+          call. = FALSE
+        )
+      }
+      if (length(moderator) > 1) {
+        stop("Only a single moderator variable can be used.", call. = FALSE)
+      }
+      if (!is.null(mod_levels)) {
+        if (inherits(x$data[[moderator]], c("factor", "character"))) {
+          if ((!inherits(mod_levels, "character")) |
+              anyNA(match(mod_levels, unique(x$data[[moderator]])))) {
+            stop(
+              "Argument 'mod_levels' does not correspond to the levels of the column of data indicated by 'moderator'."
+            )
+          }
+        } else {
+          if ((!inherits(mod_levels, c("numeric", "integer"))) |
+              any(!c(mod_levels > min(x$data[[moderator]]), mod_levels < max(x$data[[moderator]])))) {
+            stop(
+              "Argument 'mod_levels' must be a numeric vector with values within the range of 'moderator'."
+            )
+          }
+        }
+      }
+    }
+
+    plot_pi <- !is.null(pi)
+    if (plot_pi) {
+      if (!is.numeric(pi) |
+          length(pi) > 1)
+        stop("Argument 'pi' must be a numeric constant between 0 and 1.")
+      if (!(pi < 1 &
+            pi > 0))
+        stop("Argument 'pi' must have a value between 0 and 1.")
+    }
+
+    cases <- nrow(x$data)
+
+    numeric_vars <-
+      which(sapply(x$data[select_vars], class) %in% c("numeric", "integer"))
+
+    if (is.null(resolution)) {
+      resolution <-
+        c(min(nrow(unique(x$data[, select_vars, drop = FALSE])), 25L), cases)
+    } else {
+      if (resolution[2] > cases) {
+        warning(
+          "Second element of resolution cannot exceed the number of rows of the data. Set to ",
+          cases,
+          call. = FALSE
+        )
+        resolution[2] <- cases
+      }
+    }
+
+
+
+    # Process raw data --------------------------------------------------------
+
+    cont_mod <- FALSE
+    raw.data <- data.table(x$data, wi = x$weights)
+    if (!is.null(moderator)) {
+      if (inherits(x$data[[moderator]], c("numeric", "integer"))) {
+        if (is.null(mod_levels)) {
+          cont_mod <- TRUE
+        } else {
+          cont_mod <- FALSE
+          tmp <- cut(raw.data[[moderator]],
+                     c((min(raw.data[[moderator]]) - .00001), mod_levels, (max(raw.data[[moderator]]) +
+                                                                             .00001)))
+          raw.data[, (moderator) := tmp]
+          mod_levels <-
+            tapply(x$data[[moderator]], raw.data[[moderator]], median)
+        }
+      }
+    }
+
+    # Prepare plot data -------------------------------------------------------
+
+    args <- list(
+      "data" = x$data,
+      "n" = resolution,
+      "model" = x$forest,
+      "percentile_interval" = pi,
+      "moderator" = moderator,
+      "mod_levels" = mod_levels
+    )
+
     pd <- lapply(select_vars, function(.pred) {
-      args[["vars"]] <- .pred
-      dat <- do.call(
-        "marginalPrediction",
-        args)
-      names(dat) <- gsub("(%|1$)", "", names(dat))
-      dat
+      args[["vars"]] <- c(.pred, moderator)
+      do.call("create_marginal_preds",
+              args)
     })
 
-    # Calculate y limits of the plot
-    if(is.null(pi) & !rawdata){
-      y_limits <- range(unlist(lapply(pd, `[`, j = "preds")))
-    } else {
-      y_limits <- range(x$data[[as.character(as.formula(x$call[2])[2])]])
-    }
+
+
+    # Generate list of plots
+    plots <-
+      create_plotlist(
+        pd,
+        raw.data,
+        rawdata,
+        plot_pi,
+        plot_int = !is.null(moderator),
+        cont_mod = cont_mod,
+        bw = bw
+      )
+    if (output == "list")
+      return(plots)
+    merge_plots(plots)
   }
 
-  # Make list of plots
-  if(!interaction) { #If no interaction is requested, plot univariate plots
-    plots <- lapply(1:length(pd), function(.thisgrob){
-      .plot <- data.frame(pd[[.thisgrob]], Variable = names(pd[[.thisgrob]])[1])
-      p <-
-        ggplot(.plot,
-               aes_string(
-                 x = names(.plot)[1],
-                 y = names(.plot)[2])) +
+
+
+create_plotlist <-
+  function(pd,
+           raw.data,
+           rawdata,
+           plot_pi,
+           plot_int,
+           cont_mod,
+           mod_levels,
+           bw) {
+    if (!(plot_int & cont_mod)) {
+      if (rawdata) {
+        y_limits <- range(raw.data[[1]])
+      } else {
+        if (plot_pi) {
+          y_limits <-
+            range(unlist(lapply(pd, function(x) {
+              x[, range(unlist(.SD)), .SDcols = c("lower", "upper")]
+            })))
+        } else {
+          y_limits <-
+            range(unlist(lapply(pd, function(x) {
+              x[, range(unlist(.SD)), .SDcols = "preds"]
+            })))
+        }
+      }
+    }
+
+    lapply(1:length(pd), function(.thisgrob) {
+      #browser()
+      .plot <- pd[[.thisgrob]]
+      .plot[, ("Variable") := names(pd[[.thisgrob]])[1]]
+      if (plot_int) {
+        if (cont_mod) {
+          # Heatmap
+          p <- ggplot(.plot, aes_string(
+            x = names(.plot)[1],
+            y = names(.plot)[2],
+            fill = "preds"
+          )) +
+            geom_raster() +
+            scale_y_continuous(expand = c(0, 0)) +
+            ylab(names(.plot)[2])
+          if (bw) {
+            p <-
+              p + scale_fill_gradient(name = names(raw.data)[1],
+                                      low = "white",
+                                      high = "black")
+
+          } else {
+            p <-
+              p + #scale_fill_gradient(name = names(raw.data)[1])
+              scale_fill_gradient2(name = names(raw.data)[1],
+                                   low = "blue",
+                                   mid = "white",
+                                   high = "red")
+          }
+        } else {
+          # Grouped line plot
+          if (bw) {
+            p <- ggplot(
+              .plot,
+              aes_string(
+                x = names(.plot)[1],
+                y = names(.plot)[3],
+                group = names(.plot)[2],
+                linetype = names(.plot)[2],
+                shape = names(.plot)[2]
+              )
+            ) +
+              scale_y_continuous(limits = y_limits) +
+              ylab(names(raw.data)[1])
+          } else {
+            p <- ggplot(
+              .plot,
+              aes_string(
+                x = names(.plot)[1],
+                y = names(.plot)[3],
+                group = names(.plot)[2],
+                colour = names(.plot)[2],
+                fill = names(.plot)[2]
+              )
+            ) +
+              scale_y_continuous(limits = y_limits) +
+              ylab(names(raw.data)[1])
+          }
+        }
+
+      } else {
+        # Single line plot
+        if (bw) {
+          p <- ggplot(.plot, aes_string(x = names(.plot)[1],
+                                        y = names(.plot)[2])) +
+            scale_y_continuous(limits = y_limits) +
+            ylab(names(raw.data)[1])
+        } else {
+          p <- ggplot(.plot,
+                      aes_string(
+                        x = names(.plot)[1],
+                        y = names(.plot)[2],
+                        group = 1,
+                        colour = 1,
+                        fill = 1
+                      )) +
+            scale_color_continuous(guide = "none") +
+            scale_fill_continuous(guide = "none") +
+            scale_y_continuous(limits = y_limits) +
+            ylab(names(raw.data)[1])
+        }
+
+      }
+      p <- p +
         facet_wrap("Variable") +
         theme_bw() +
-        theme(legend.position = "none",
-              axis.title.x = element_blank(),
-              #axis.title.y = element_blank(),
-              plot.margin = unit(rep(.2, 4), "line"))+
-        scale_y_continuous(limits = y_limits)+
-        ylab(target)
+        theme(
+          legend.direction = "vertical",
+          legend.box = "horizontal",
+          legend.position = c(1, .997),
+          legend.justification = c(1, 1),
+          axis.title.x = element_blank(),
+          plot.margin = unit(rep(.2, 4), "line")
+        )
 
-      if(class(.plot[[1]]) %in% c("numeric", "integer")){
-        p <- p + geom_line(aes(group=1)) + scale_x_continuous(expand = c(0,0))
-        if(!is.null(pi)){
-          p <- p + geom_ribbon(aes_string(ymin = names(.plot)[ncol(.plot)-2],
-                                          ymax =  names(.plot)[ncol(.plot)-1]), alpha = .2)
-        }
-        if(rawdata){
-          raw.data <- data.frame(wi = x$weights, x$data[, c(target, names(.plot)[1])])
-          p <- p + geom_point(data = raw.data, alpha=.1, aes_string(x = names(.plot)[1],
-                                                                    y = target,
-                                                                    size = "wi"))
+      if (class(.plot[[1]]) %in% c("numeric", "integer")) {
+        if (!cont_mod) {
+          # Add shaded confidence ribbon
+          if (plot_pi) {
+            p <- p + geom_ribbon(aes_string(ymin = names(.plot)[ncol(.plot) - 2],
+                                            ymax = names(.plot)[ncol(.plot) -
+                                                                  1]),
+                                 alpha = .2)
+          }
+          # Add points
+          if (rawdata) {
+            p <- p + geom_point(
+              data = raw.data,
+              alpha = .1,
+              aes_string(
+                x = names(.plot)[1],
+                y = names(raw.data)[1],
+                size = "wi"
+              )
+            ) +
+              scale_size_continuous(guide = "none")
+          }
+          # Add line
+          p <-
+            p + geom_line(size = 1) + scale_x_continuous(expand = c(0, 0))
+        } else {
+          p <- p + scale_x_continuous(expand = c(0, 0))
         }
       } else {
-        p <- p + geom_point(size = 5, shape = 18)
-        if(!is.null(pi)){
-          p <- p + geom_errorbar(aes_string(
-            ymin = names(.plot)[ncol(.plot)-2],
-            ymax =  names(.plot)[ncol(.plot)-1]),
-            width = .4)
-        }
-        if(rawdata){
-          raw.data <- data.frame(wi = x$weights, x$data[, c(target, names(.plot)[1])])
-          p <- p + geom_jitter(data = raw.data, width = .2, height = 0, alpha=.1, aes_string(x = names(.plot)[1],
-                                                                                 y = target,
-                                                                                 size = "wi"))
+        if (!cont_mod) {
+          # Add errorbars
+          if (plot_pi) {
+            p <- p + geom_errorbar(
+              aes_string(ymin = names(.plot)[ncol(.plot) - 2],
+                         ymax =  names(.plot)[ncol(.plot) - 1]),
+              width = .4,
+              position = position_dodge(width = .5)
+            )
+          }
+          # Add jittered points
+          if (rawdata) {
+            p <- p + geom_jitter(
+              data = raw.data,
+              position = position_jitterdodge(
+                jitter.width = .2,
+                jitter.height = 0,
+                dodge.width = .5
+              ),
+              alpha = .1,
+              aes_string(
+                x = names(.plot)[1],
+                y = names(raw.data)[1],
+                size = "wi"
+              )
+            )
+          }
+          # Add clustered centroids
+          p <- p + geom_point(
+            size = 5,
+            shape = 18,
+            position = position_dodge(width = .5)
+          ) +
+            scale_size_continuous(guide = "none")
+        } else {
+          # If cont_mod, just fix X scale limits
+          p <- p + scale_x_discrete(expand = c(0, 0))
         }
       }
-
       p
     })
-    if(output == "list") return(plots)
-    merge_plots(plots)
-  } else { #If an interaction plot is requested
-    p <- ggplot(pd, aes_string(x = names(pd)[1], y = names(pd)[2], fill = "preds")) +
-      geom_raster() +
-      scale_fill_gradient(name = target, low = "white", high = "black")
-    if(class(pd[[1]]) %in% c("factor", "character")){
-      p <- p + scale_x_discrete(expand=c(0,0))
-    } else {
-      p <- p + scale_x_continuous(expand=c(0,0))
-    }
-    if(class(pd[[2]]) %in% c("factor", "character")){
-      p <- p + scale_y_discrete(expand=c(0,0))
-    } else {
-      p <- p + scale_y_continuous(expand=c(0,0))
-    }
-    p <- p + theme_bw()
-    if(output == "list") return(list(p))
-    merge_plots(p)
   }
 
-}
 
-#' @export
-PartialDependence.rma = function(x, vars = NULL, interaction = FALSE, pi = NULL, rawdata = FALSE, resolution = NULL, ...) {
-  data <- data.frame(yi = as.numeric(x$yi), x$X[, !(colnames(x$X) == "intrcpt")])
-  if (is.null(x$tau2)) {
-    weights <- 1 / x$vi
-  } else {
-    weights <- 1 / (x$vi + x$tau2)
-  }
 
-  if(is.null(vars)){
-    select_vars <- names(data)[-1]
-  } else {
-    not_exist <- vars[which(!(vars %in% names(data)))]
-    if(length(not_exist) > 0){
-      warning("The following elements of vars did not occur in rma()$X, and are probably not correct variable names: ", not_exist)
-    }
-    select_vars <- vars[which(vars %in% names(data))]
-  }
-  if(length(select_vars) == 0){
-    stop("PartialDependence() found no moderators in the rma() model provided.", call. = FALSE)
-  }
-  if(interaction & (length(select_vars) > 2 | length(select_vars) == 1)) {
-    stop("Only bivariate interactions can be plotted. Argument \'vars\' must be of length 2 when \'interaction = TRUE\'.", call. = FALSE)
-  }
-
-  factor_vars <- sapply(data[select_vars], function(v){
-      tmp <- unique(v)
-      length(tmp) - sum(is.na(tmp)) == 2L && all(tmp[1:2] %in% 0:1)
-    })
-  numeric_vars <- which(!factor_vars)
-  factor_vars <- which(factor_vars)
-
-  data[select_vars[factor_vars]] <- lapply(data[select_vars[factor_vars]], factor)
-  if(is.null(resolution)){
-    resolution <- 100
-  } else {
-    resolution <- resolution[1]
-  }
-  if(interaction) {
-    mods_list <- as.list(rep(0, ncol(data[-1])))
-    names(mods_list) <- names(data)[-1]
-    mods_list[select_vars[numeric_vars]] <- lapply(select_vars[numeric_vars], function(.var){
-      seq(min(data[[.var]]), max(data[[.var]]), length.out = resolution)
-    })
-    mods_list[select_vars[factor_vars]] <- lapply(select_vars[factor_vars], function(.var){
-      as.numeric(levels(data[[.var]]))
-    })
-    mods <- expand.grid(mods_list)
-    pd <- data.frame(predict.rma(x, newmods = unname(as.matrix(mods))), mods[ , match(select_vars, colnames(mods))])
-    # Hier verder
-    if(any(select_vars %in% select_vars[-numeric_vars])){
-      pd[select_vars[select_vars %in% select_vars[-numeric_vars]]] <- lapply(pd[select_vars[select_vars %in% select_vars[-numeric_vars]]], factor)
-    }
-  } else {
-    if(is.null(pi)){
-      .pival <- 95
-    } else {
-      .pival <- pi*100
-    }
-    pd <- lapply(select_vars, function(.pred) {
-      mods_list <- as.list(rep(0, ncol(data[-1])))
-      names(mods_list) <- names(data)[-1]
-      if(.pred %in% select_vars[numeric_vars]){
-        mods_list[[.pred]] <- seq(min(data[[.pred]]), max(data[[.pred]]), length.out = resolution)
-      } else {
-        mods_list[[.pred]] <- as.numeric(levels(data[[.pred]]))
-      }
-      mods <- expand.grid(mods_list)
-      data.frame(predict.rma(x, newmods = unname(as.matrix(mods))), mods[ , match(select_vars, colnames(mods))])
-
-      pred_dat <- data.frame(predict.rma(x, newmods = unname(as.matrix(mods)),
-                             level = .pival),
-                             mods[.pred])
-      if(.pred %in% select_vars[factor_vars]){
-        pred_dat[[7]] <- factor(pred_dat[[7]])
-      }
-      pred_dat
-    })
-
-    if(is.null(pi)){
-      if(rawdata){
-        y_limits <- c(data$yi, unlist(lapply(pd, '[', i = 1)))
-      } else {
-        y_limits <- unlist(lapply(pd, '[', i = 1))
-      }
-    } else {
-      if(rawdata){
-        y_limits <- c(data$yi, unlist(lapply(pd, '[', i = c(1, 3, 4))))
-      } else {
-        y_limits <- unlist(lapply(pd, '[', i = c(1, 3, 4)))
-      }
-    }
-
-    y_limits <- range(y_limits)
-  }
-
-  n_grobs <- length(pd)
+#' @import grid gtable
+merge_plots <- function(plots){
+  target <- plots[[1]]$labels$y
+  n_grobs <- length(plots)
   grob_rows <- floor(sqrt(n_grobs))
   grob_cols <- ceiling(sqrt(n_grobs))
   if((grob_rows*grob_cols) < n_grobs){
     grob_rows <- grob_rows + 1
   }
-
-  if(!interaction) { #If no interaction is requested, plot univariate plots
-    plots <- lapply(1:n_grobs, function(.thisgrob){
-
-      .plot <- pd[[.thisgrob]]
-      p <-
-        ggplot(data.frame(.plot, Variable = names(.plot)[7]),
-               aes_string(
-                 x = names(.plot)[7],
-                 y = "pred")) +
-        facet_wrap("Variable") +
-        theme_bw() +
-        theme(legend.position = "none",
-              axis.title.x = element_blank(),
-              axis.title.y = element_blank(),
-              plot.margin = unit(rep(.2, 4), "line"))+
-        scale_y_continuous(limits = y_limits)
-
-      if(.thisgrob %in% numeric_vars){
-        p <- p + geom_line(aes(group=1)) + scale_x_continuous(expand = c(0,0))
-        if(!is.null(pi)){
-          p <- p + geom_ribbon(aes_string(ymin = "ci.lb", ymax = "ci.ub"), alpha = .2)
-        }
-        if(rawdata){
-
-
-          raw.data <- data.frame(wi = weights, data[, c("yi", names(.plot)[7])])
-          p <- p + geom_point(data = raw.data, alpha=.1, aes_string(x = names(.plot)[7],
-                                                                    y = "yi",
-                                                                    size = "wi"))
-        }
-      } else {
-        p <- p + geom_point(size = 5, shape = 18)
-        if(!is.null(pi)){
-          p <- p + geom_errorbar(aes_string(
-            ymin = "ci.lb",
-            ymax =  "ci.ub"),
-            width = .4)
-        }
-        if(rawdata){
-          raw.data <- data.frame(wi = weights, data[, c("yi", names(.plot)[7])])
-          raw.data[[3]] <- factor(raw.data[[3]])
-          p <- p + geom_jitter(data = raw.data, width = .2, height = 0,
-                               alpha=.1, aes_string(x = names(.plot)[7],
-                               y = "yi",
-                               size = "wi"))
-        }
-      }
-
-      if(!(.thisgrob %in% seq.int(1, n_grobs, by = grob_cols))){
-        p <- p + theme(
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()
-        )
-      }
-      suppressMessages(
-        ggplotGrob(p)
-      )
-    })
-
-    if(n_grobs > 1){
-      plots[2:length(plots)] <- lapply(plots[2:length(plots)], function(x){
-        x$widths <- plots[[1]]$widths
-        x
-      })
+  for(x in 1:length(plots)){
+    if(!(x %in% seq.int(1, n_grobs, by = grob_cols))){
+      plots[[x]] <- plots[[x]] + theme(axis.text.y = element_blank(),
+                                       axis.ticks.y = element_blank())
     }
-
-
-    if(n_grobs < (grob_cols * grob_rows)){
-      plots[(length(plots)+1):(grob_cols * grob_rows)] <- lapply((length(plots)+1):(grob_cols * grob_rows), function(x){nullGrob()})
+    if(!x == grob_cols){
+      plots[[x]] <- plots[[x]] + theme(legend.position = "none")
     }
-
-    gt <- gtable_matrix("partial.dependence",
-                        matrix(plots, nrow = grob_rows, byrow = TRUE),
-                        widths = unit(rep(1, grob_cols), "null"),
-                        heights = unit(rep(1, grob_rows), "null"))
-
-
-    left <- textGrob("yi", rot = 90, just = c(.5, .5))
-    gt <- gtable_add_cols(gt, widths = grobWidth(left)+ unit(0.5, "line"), 0)
-    gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
-                          l = 1, r = 1, z = Inf)
-    gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
-  } else { #If an interaction plot is requested
-    p <- ggplot(pd, aes_string(select_vars[1], select_vars[2], fill = "pred")) +
-      geom_raster() +
-      scale_fill_gradient(name = "yi", low = "white", high = "black")
-    if(class(pd[[7]]) %in% c("factor", "character")){
-      p <- p + scale_x_discrete(expand=c(0,0))
-    } else {
-      p <- p + scale_x_continuous(expand=c(0,0))
-    }
-    if(class(pd[[8]]) %in% c("factor", "character")){
-      p <- p + scale_y_discrete(expand=c(0,0))
-    } else {
-      p <- p + scale_y_continuous(expand=c(0,0))
-    }
-    p <- p + theme_bw()
-    gt <- gtable_matrix("partial.dependence",
-                        matrix(list(suppressMessages(ggplotGrob(p))),
-                               nrow = 1, byrow = TRUE),
-                        widths = unit(1, "null"),
-                        heights = unit(1, "null"))
+    plots[[x]] <- suppressMessages(ggplotGrob(plots[[x]]+theme(axis.title.y = element_blank())))
+    if(x > 1) plots[[x]]$widths <- plots[[1]]$widths
   }
+
+  if(n_grobs < (grob_cols * grob_rows)){
+    plots[(length(plots)+1):(grob_cols * grob_rows)] <- lapply((length(plots)+1):(grob_cols * grob_rows), function(x){nullGrob()})
+  }
+
+  gt <- gtable_matrix("partial.dependence",
+                      matrix(plots, nrow = grob_rows, byrow = TRUE),
+                      widths = unit(rep(1, grob_cols), "null"),
+                      heights = unit(rep(1, grob_rows), "null"))
+
+  left <- textGrob(target, rot = 90, just = c(.5, .5))
+  gt <- gtable_add_cols(gt, widths = grobWidth(left)+ unit(0.5, "line"), 0)
+  gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
+                        l = 1, r = 1, z = Inf)
+  gt <- gtable_add_cols(gt, widths = unit(0.5, "line"))
+
   grid.newpage()
   grid.draw(gt)
   invisible(gt)
 }
-
-
