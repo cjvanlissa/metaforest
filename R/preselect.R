@@ -35,6 +35,8 @@ preselect <- function(formula, data, vi = "vi", study = NULL,
   settings <- as.list(match.call())[-1]
   settings$replications <- NULL
   settings$algorithm <- NULL
+  settings$formula <- formula
+  settings$data <- data
   mods <- names(get_all_vars(formula, data = data))
   if(as.character(formula[2]) %in% mods) mods <- mods[-match(as.character(formula[2]), mods)]
   if(vi %in% mods) mods <- mods[-match(vi, mods)]
@@ -73,7 +75,7 @@ recursive_mf <- function(modvars, settings){
 }
 
 bootstrap_mf <- function(modvars, settings){
-  settings$formula <- update(as.formula(settings$formula), paste0("~ ", paste(modvars, collapse = " + ")))
+  settings$formula <- update(settings$formula, paste0("~ ", paste(modvars, collapse = " + ")))
   mf_tmp <- do.call(MetaForest, settings)
   c(r2 = mf_tmp$forest$r.squared, mf_tmp$forest$variable.importance)
 }

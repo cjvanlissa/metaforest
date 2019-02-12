@@ -1,5 +1,6 @@
 Package: metaforest
 Type: Package
+Date: 2019-02-08
 Title: Exploring Heterogeneity in Meta-Analysis using Random Forests
 Version: 0.1.3.0003
 Author: Caspar J. van Lissa
