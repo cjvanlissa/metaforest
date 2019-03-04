@@ -1,11 +1,29 @@
 #' @title Preselect variables for MetaForest analysis
-#' @description Applies different methods to preselect variables before
-#' conducting a \code{\link{MetaForest}} analysis.
-#' @inheritParams MetaForest
+#' @description Takes a \code{\link{MetaForest}} object, and applies different
+#' algorithms for variable selection.
+#' @details Currently, available methods under \code{algorithm} are:
+#' \describe{
+#' \item{replicate}{This simply replicates the analysis, which means the forest
+#' has access to the full data set, but the trees are grown on different
+#' bootstrap samples across replications (thereby varying monte carlo error).}
+#' \item{bootstrap}{This replicates the analysis on bootstrapped samples, which
+#' means each replication has access to a different sub-sample of the full data
+#' set. When selecting this algorithm, cases are either bootstrap-sampled by
+#' \code{study}, or a new \code{study} column is generated, and a clustered
+#' MetaForest is grown (because some of the rows in the data will be duplicated)
+#' , and this would lead to an under-estimation of the OOB error.}
+#' \item{recursive}{Starting with all moderators, the variable with the most
+#' negative variable importance is dropped from the model, and the analysis
+#' re-run. This is repeated until only variables with a positive variable
+#' importance are left, or no variables are left. The proportion of final models
+#' containing each variable reflects its importance.}
+#' }
+#' @param x Model to perform variable selection for. Accepts MetaForest objects.
 #' @param replications Integer. Number of replications to run for variable
 #' preselection. Default: 100.
-#' @param algorithm Character. Preselection method to apply. Currently, either
-#' 'recursive' or 'bootstrap' are available.
+#' @param algorithm Character. Preselection method to apply. Currently,
+#' 'replicate', 'recursive', and 'bootstrap' are available.
+#' @param ... Other arguments to be passed to and from functions.
 #' @return An object of class 'mf_preselect'
 #' @examples
 #' \dontrun{
@@ -15,38 +33,41 @@
 #' data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
 #' data[c(5:8)] <- lapply(data[c(5:8)], factor)
 #' data$yi <- as.numeric(data$yi)
-#' tmp <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
+#' mf.model <- MetaForest(formula = yi~ selection + investigator + hand_assess + eye_assess +
 #'                         mage +sex,
 #'           data, study = "sample",
-#'           whichweights = "unif", num.trees = 300,
+#'           whichweights = "unif", num.trees = 300)
+#' preselect(mf.model,
 #'           replications = 10,
-#'           algorithm = "recursive")
+#'           algorithm = "bootstrap")
 #' }
 #' @rdname preselect
 #' @export
-#'
-preselect <- function(formula, data, vi = "vi", study = NULL,
-                                   whichweights = "random",
-                                   num.trees = 500, mtry = NULL, method = "REML",
-                                   tau2 = NULL, ...,
-                                   replications = 100L,
-                      algorithm = "bootstrap"){
+#@inheritParams MetaForest
+preselect <- function(x, replications = 100L, algorithm = "replicate", ...){
+  UseMethod("preselect", x)
+}
 
-  settings <- as.list(match.call())[-1]
-  settings$replications <- NULL
-  settings$algorithm <- NULL
-  settings$formula <- formula
-  settings$data <- data
-  mods <- names(get_all_vars(formula, data = data))
-  if(as.character(formula[2]) %in% mods) mods <- mods[-match(as.character(formula[2]), mods)]
-  if(vi %in% mods) mods <- mods[-match(vi, mods)]
-  if(!is.null(study)){
-    if(study %in% mods) mods <- mods[-match(study, mods)]
+#' @method preselect MetaForest
+#' @export
+preselect.MetaForest <- function(x, replications = 100L, algorithm = "replicate", ...){
+  #args <- as.list(formals(MetaForest))
+  #args[["..."]] <- NULL
+  args <- as.list(x$call)[-1]
+  #args[match(names(call_args), names(args))] <- call_args
+  if(!is.null(x[["study"]])){
+    args$data <- cbind(x$data, vi = x$vi, study = x$study)
+    args[["study"]] <- "study"
+  } else {
+    args$data <- cbind(x$data, vi = x$vi)
   }
-
+  args$vi <- NULL
+  mods <- names(x$data)[-1]
+  args$formula <- force(as.formula(paste0(names(x$data[1]), " ~ ", paste(mods, collapse = " + "))))
   master_list <- switch(algorithm,
-                        recursive = replicate(replications, recursive_mf(mods, settings)),
-                        bootstrap = replicate(replications, bootstrap_mf(mods, settings), simplify = FALSE))
+                        recursive = replicate(replications, recursive_mf(mods, args), simplify = FALSE),
+                        replicate = replicate(replications, replicate_mf(args), simplify = FALSE),
+                        bootstrap = replicate(replications, bootstrap_mf(args), simplify = FALSE))
 
   r2s <- sapply(master_list, `[`, "r2")
 
@@ -57,7 +78,8 @@ preselect <- function(formula, data, vi = "vi", study = NULL,
   })))
   names(var_selected) <- mods
   outlist <- list(rsquared = r2s, selected = var_selected)
-  class(outlist) <- c(paste0("mf_preselect", "_", algorithm), "mf_preselect")
+  class(outlist) <- "mf_preselect"
+  attributes(outlist)$algorithm <- algorithm
   outlist
 }
 
@@ -74,8 +96,18 @@ recursive_mf <- function(modvars, settings){
   }
 }
 
-bootstrap_mf <- function(modvars, settings){
-  settings$formula <- update(settings$formula, paste0("~ ", paste(modvars, collapse = " + ")))
+replicate_mf <- function(settings){
+  mf_tmp <- do.call(MetaForest, settings)
+  c(r2 = mf_tmp$forest$r.squared, mf_tmp$forest$variable.importance)
+}
+
+bootstrap_mf <- function(settings){
+  if(is.null(settings$data[["study"]])){
+    settings$data$study <- 1L:nrow(settings$data)
+  }
+  select_these <- sample(unique(settings$data$study), nrow(settings$data), replace = TRUE)
+  settings$data <- settings$data[select_these, ]
+  settings$study <- "study"
   mf_tmp <- do.call(MetaForest, settings)
   c(r2 = mf_tmp$forest$r.squared, mf_tmp$forest$variable.importance)
 }
@@ -84,19 +116,20 @@ bootstrap_mf <- function(modvars, settings){
 #' @export
 plot.mf_preselect <- function(x, y, ...){
   order_vars <- imp <- x$selected
-  if(inherits(x, "mf_preselect_recursive")){
+  if(attributes(x)$algorithm == "recursive"){
     excluded <- colMeans(is.na(imp))
     order_vars[is.na(order_vars)] <- 0
     names(imp) <- paste0(names(imp), ", ", formatC(colMeans(!is.na(imp))*100, digits = 0, format = "f"), "%")
-    ylabel <- "Recursive variable Importance (Permutation importance)"
-  } else {
-    ylabel <- "Bootstrapped variable Importance (Permutation importance)"
   }
+  ylabel <- paste(
+    c("Bootstrapped", "Replicated", "Recursive")[
+      match(attributes(x)$algorithm, c("bootstrap", "replicate", "recursive"))],
+    "variable Importance (Permutation importance)")
   order_vars <- names(imp)[order(colMeans(order_vars), decreasing = FALSE)]
   plotdat <- data.frame(Variable = ordered(rep(names(imp), each = nrow(imp)), levels = order_vars), Importance = c(as.matrix(imp)))
   plotdat <- plotdat[complete.cases(plotdat), ]
 
-  ggplot(plotdat, aes_string(x = "Variable", y = "Importance")) +
+  p <- ggplot(plotdat, aes_string(x = "Variable", y = "Importance")) +
     geom_boxplot(color="black", size=0.2, outlier.shape = NA) +
     geom_jitter(width = .2, alpha = .2) +
     theme_bw() +
@@ -104,6 +137,12 @@ plot.mf_preselect <- function(x, y, ...){
     theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(), axis.title.y = element_blank()) +
     ylab(ylabel) +
     coord_flip()
+
+  if(hasArg("label_elements")){
+    label_elements <- eval(match.call()[["label_elements"]])
+    levels(p$data$Variable) <- rename_fun(levels(p$data$Variable), names(label_elements), label_elements)
+  }
+  p
 }
 
 
@@ -160,17 +199,16 @@ print.mf_preselect <- function(x, digits = 3, ...){
 #'           whichweights = "unif", num.trees = 300,
 #'           replications = 10,
 #'           algorithm = "bootstrap")
-#' select_vars(preselected)
+#' preselect_vars(preselected)
 #' }
-#' @rdname select_vars
+#' @rdname preselect_vars
 #' @export
 #'
-
-select_vars <- function(x,
+preselect_vars <- function(x,
                         cutoff = NULL,
                         criterion = NULL) {
   if (!inherits(x, "mf_preselect"))
-    stop("Function select_vars() requires an object of class 'mf_preselect'.")
+    stop("Function preselect_vars() requires an object of class 'mf_preselect'.")
   if (!is.null(cutoff)){
     if(cutoff < 0 | cutoff > 1) stop("Argument 'criterion' must be a number between 0 and 1.")
   }

@@ -4,68 +4,44 @@
 \alias{preselect}
 \title{Preselect variables for MetaForest analysis}
 \usage{
-preselect(formula, data, vi = "vi", study = NULL,
-  whichweights = "random", num.trees = 500, mtry = NULL,
-  method = "REML", tau2 = NULL, ..., replications = 100L,
-  algorithm = "bootstrap")
+preselect(x, replications = 100L, algorithm = "replicate", ...)
 }
 \arguments{
-\item{formula}{Formula. Specify a formula for the MetaForest model, for
-example, \code{yi ~ .} to predict the outcome \code{yi} from all moderators
-in the data. Only additive formulas are allowed (i.e., \code{x1+x2+x3}).
-Interaction terms and non-linear terms are not required, as the random
-forests algorithm inherently captures these associations.}
-
-\item{data}{A data.frame containing the effect size, moderators, and the
-variance of the effect size.}
-
-\item{vi}{Character. Specify the name of the column in the \code{data} that
-contains the variances of the effect sizes. This column will be removed from
-the data prior to analysis. Defaults to \code{"vi"}.}
-
-\item{study}{Character. Optionally, specify the name of the column in the
-\code{data} that contains the study id. Use this when the data includes
-multiple effect sizes per study. This column can be a vector of integers, or
-a factor. This column will be removed from the data prior to analysis.
-See \code{Details} for more information about analyzing dependent data.}
-
-\item{whichweights}{Character. Indicate what time of weights are required.
-A random-effects MetaForest is grown by specifying \code{whichweights =
-"random"}. A fixed-effects MetaForest is grown by specifying
-\code{whichweights = "fixed"}. An unweighted MetaForest is grown by
-specifying \code{whichweights = "unif"}. Defaults to \code{"random"}.}
-
-\item{num.trees}{Atomic integer. Specify the number of trees in the forest.
-Defaults to 500.}
-
-\item{mtry}{Atomic integer. Number of candidate moderators available for each
-split. Defaults to the square root of the number moderators (rounded down).}
-
-\item{method}{Character. Specify the method by which to estimate the residual
-variance. Can be set to one of the following: "DL", "HE", "SJ", "ML", "REML",
-"EB", "HS", or "GENQ". Default is "REML". See the
-\code{\link[metafor:rma.uni]{metafor}} package for more information about
-these estimators.}
-
-\item{tau2}{Numeric. Specify a predetermined value for the residual
-heterogeneity. Entering a value here supersedes the estimated tau2 value.
-Defaults to NULL.}
-
-\item{...}{Additional arguments are passed directly to \link[ranger]{ranger}.
-It is recommended not to use additional arguments.}
+\item{x}{Model to perform variable selection for. Accepts MetaForest objects.}
 
 \item{replications}{Integer. Number of replications to run for variable
 preselection. Default: 100.}
 
-\item{algorithm}{Character. Preselection method to apply. Currently, either
-'recursive' or 'bootstrap' are available.}
+\item{algorithm}{Character. Preselection method to apply. Currently,
+'replicate', 'recursive', and 'bootstrap' are available.}
+
+\item{...}{Other arguments to be passed to and from functions.}
 }
 \value{
 An object of class 'mf_preselect'
 }
 \description{
-Applies different methods to preselect variables before
-conducting a \code{\link{MetaForest}} analysis.
+Takes a \code{\link{MetaForest}} object, and applies different
+algorithms for variable selection.
+}
+\details{
+Currently, available methods under \code{algorithm} are:
+\describe{
+\item{replicate}{This simply replicates the analysis, which means the forest
+has access to the full data set, but the trees are grown on different
+bootstrap samples across replications (thereby varying monte carlo error).}
+\item{bootstrap}{This replicates the analysis on bootstrapped samples, which
+means each replication has access to a different sub-sample of the full data
+set. When selecting this algorithm, cases are either bootstrap-sampled by
+\code{study}, or a new \code{study} column is generated, and a clustered
+MetaForest is grown (because some of the rows in the data will be duplicated)
+, and this would lead to an under-estimation of the OOB error.}
+\item{recursive}{Starting with all moderators, the variable with the most
+negative variable importance is dropped from the model, and the analysis
+re-run. This is repeated until only variables with a positive variable
+importance are left, or no variables are left. The proportion of final models
+containing each variable reflects its importance.}
+}
 }
 \examples{
 \dontrun{
@@ -75,11 +51,12 @@ data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
 data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
 data[c(5:8)] <- lapply(data[c(5:8)], factor)
 data$yi <- as.numeric(data$yi)
-tmp <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
+mf.model <- MetaForest(formula = yi~ selection + investigator + hand_assess + eye_assess +
                         mage +sex,
           data, study = "sample",
-          whichweights = "unif", num.trees = 300,
+          whichweights = "unif", num.trees = 300)
+preselect(mf.model,
           replications = 10,
-          algorithm = "recursive")
+          algorithm = "bootstrap")
 }
 }

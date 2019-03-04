@@ -103,6 +103,11 @@ PartialDependence <-
     if(hasArg("interaction")){
       stop("The argument 'interaction' has been deprecated, and is replaced by the argument 'moderator'. See ?PartialDependence for help on how to use the 'moderator' argument." )
     }
+    if(hasArg("label_elements")){
+      label_elements <- eval(match.call()[["label_elements"]])
+    } else {
+      label_elements <- NULL
+    }
     if (is.null(vars)) {
       select_vars <- names(x$forest$variable.importance)
     } else {
@@ -221,8 +226,6 @@ PartialDependence <-
               args)
     })
 
-
-
     # Generate list of plots
     plots <-
       create_plotlist(
@@ -232,7 +235,8 @@ PartialDependence <-
         plot_pi,
         plot_int = !is.null(moderator),
         cont_mod = cont_mod,
-        bw = bw
+        bw = bw,
+        label_elements = label_elements
       )
     if (output == "list")
       return(plots)
@@ -249,7 +253,9 @@ create_plotlist <-
            plot_int,
            cont_mod,
            mod_levels,
-           bw) {
+           bw,
+           label_elements) {
+    rename_labels <- ifelse(is.null(label_elements), FALSE, TRUE)
     if (!(plot_int & cont_mod)) {
       if (rawdata) {
         y_limits <- range(raw.data[[1]])
@@ -269,9 +275,12 @@ create_plotlist <-
     }
 
     lapply(1:length(pd), function(.thisgrob) {
-      #browser()
       .plot <- pd[[.thisgrob]]
-      .plot[, ("Variable") := names(pd[[.thisgrob]])[1]]
+      if(!rename_labels){
+        .plot[, ("Variable") := names(pd[[.thisgrob]])[1]]
+      } else {
+        .plot[, ("Variable") := rename_fun(names(pd[[.thisgrob]])[1], names(label_elements), label_elements)]
+      }
       if (plot_int) {
         if (cont_mod) {
           # Heatmap
@@ -363,7 +372,7 @@ create_plotlist <-
           plot.margin = unit(rep(.2, 4), "line")
         )
 
-      if (class(.plot[[1]]) %in% c("numeric", "integer")) {
+      if (inherits(.plot[[1]], c("numeric", "integer"))) {
         if (!cont_mod) {
           # Add shaded confidence ribbon
           if (plot_pi) {

@@ -17,9 +17,6 @@ A review of 17 experimental studies published between 1980 and 2005 on the
 effect of specialized training on the competency of caregivers in childcare.
 }
 \details{
-The number knowledge of children is measured before watching Sesame Street,
-after one year, and a follow up measurement after two years.
-
 \tabular{lll}{
    \strong{id_exp} \tab \code{integer} \tab Unique identifier of the study\cr
    \strong{yi} \tab \code{numeric} \tab Standardized mean difference between the control group and\cr

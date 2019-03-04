@@ -4,7 +4,7 @@
 \alias{VarImpPlot}
 \title{Plots variable importance for a MetaForest object.}
 \usage{
-VarImpPlot(mf, n.var = 30, sort = TRUE)
+VarImpPlot(mf, n.var = 30, sort = TRUE, ...)
 }
 \arguments{
 \item{mf}{MetaForest object.}
