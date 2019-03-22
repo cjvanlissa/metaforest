@@ -12,6 +12,8 @@ VarImpPlot(mf, n.var = 30, sort = TRUE, ...)
 \item{n.var}{Number of moderators to plot.}
 
 \item{sort}{Should the moderators be sorted from most to least important?}
+
+\item{...}{Parameters passed to and from other functions.}
 }
 \value{
 A ggplot object.

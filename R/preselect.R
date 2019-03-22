@@ -210,9 +210,9 @@ preselect_vars <- function(x,
   if (!inherits(x, "mf_preselect"))
     stop("Function preselect_vars() requires an object of class 'mf_preselect'.")
   if (!is.null(cutoff)){
-    if(cutoff < 0 | cutoff > 1) stop("Argument 'criterion' must be a number between 0 and 1.")
+    if(cutoff < 0 | cutoff > 1) stop("Argument 'cutoff' must be a number between 0 and 1.")
   }
-  if (inherits(x, "mf_preselect_recursive")) {
+  if (attributes(x)$algorithm == "recursive") {
     if (is.null(cutoff))
       cutoff <- .1
     if (is.null(criterion))

@@ -3,6 +3,7 @@
 #' @param mf MetaForest object.
 #' @param n.var Number of moderators to plot.
 #' @param sort Should the moderators be sorted from most to least important?
+#' @param ... Parameters passed to and from other functions.
 #' @return A ggplot object.
 #' @import ggplot2
 #' @export
