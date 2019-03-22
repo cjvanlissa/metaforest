@@ -2,6 +2,8 @@
 [![Travis-CI Build
 Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Coverage
+status](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg)](https://codecov.io/github/cjvanlissa/metaforest?branch=master)
 
 metaforest
 ==========
@@ -45,7 +47,7 @@ library(metaforest)
 #> Loading 'metafor' package (version 2.0-0). For an overview 
 #> and introduction to the package please type: help(metafor).
 #> Loading required package: ranger
-#> Loading required package: mmpf
+#> Loading required package: data.table
 
 #Simulate a meta-analysis dataset with 20 studies, 1 relevant moderator, and 4 irrelevant moderators
 set.seed(42)
@@ -66,22 +68,22 @@ results
 #> Number of trees in forest:     2000      
 #> Candidate variables per split: 2         
 #> Minimum terminal node size:    5         
-#> OOB prediction error (MSE):    0.1010    
-#> R squared (OOB):               0.2987    
+#> OOB prediction error (MSE):    0.1012    
+#> R squared (OOB):               0.2970    
 #> 
 #> Tests for Heterogeneity: 
 #>                                tau2   tau2_SE I^2     H^2    Q-test  df
 #> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19
-#> Residuals (after MetaForest):  0.0098 0.0334  9.5005  1.1050 20.9946 19
+#> Residuals (after MetaForest):  0.0099 0.0334  9.6420  1.1067 21.0275 19
 #>                                Q_p   
 #> Raw effect sizes:              0.0483
-#> Residuals (after MetaForest):  0.3371
+#> Residuals (after MetaForest):  0.3353
 #> 
 #> 
 #> Random intercept meta-analyses:
 #>                                Intercept se     ci.lb   ci.ub   p     
 #> Raw effect sizes:              -0.2136   0.0875 -0.3851 -0.0421 0.0147
-#> Residuals (after MetaForest):  0.0362    0.0719 -0.1048 0.1771  0.6148
+#> Residuals (after MetaForest):  0.0357    0.0720 -0.1053 0.1768  0.6197
 
 #Conduct a weighted MetaForest analysis, using the residual tau2 from the
 #unweighted analysis above
@@ -101,19 +103,19 @@ summary(mf.random)
 #> Candidate variables per split: 2         
 #> Minimum terminal node size:    5         
 #> OOB prediction error (MSE):    0.0945    
-#> R squared (OOB):               0.3439    
+#> R squared (OOB):               0.3438    
 #> 
 #> Tests for Heterogeneity: 
 #>                                tau2   tau2_SE I^2     H^2    Q-test  df
 #> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19
-#> Residuals (after MetaForest):  0.0031 0.0312  3.2046  1.0331 19.6290 19
+#> Residuals (after MetaForest):  0.0031 0.0312  3.2094  1.0332 19.6300 19
 #>                                Q_p   
 #> Raw effect sizes:              0.0483
-#> Residuals (after MetaForest):  0.4172
+#> Residuals (after MetaForest):  0.4171
 #> 
 #> 
 #> Random intercept meta-analyses:
 #>                                Intercept se     ci.lb   ci.ub   p     
 #> Raw effect sizes:              -0.2136   0.0875 -0.3851 -0.0421 0.0147
-#> Residuals (after MetaForest):  0.0303    0.0692 -0.1054 0.1660  0.6618
+#> Residuals (after MetaForest):  0.0298    0.0693 -0.1059 0.1656  0.6666
 ```
