@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 [![Travis-CI Build Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Coverage status](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg)](https://codecov.io/github/cjvanlissa/metaforest?branch=master)
 
 # metaforest
 
