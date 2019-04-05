@@ -37,3 +37,34 @@ plot.MetaForest <- function(x, y, ...) {
       labs(y = "Cumulative MSE", x = "Number of trees", title = "Convergence plot") +
       geom_hline(yintercept = median(cumulative_predictions$mse), colour = "gray50", linetype = 2)
 }
+
+
+
+#' @method plot ranger
+#' @export
+plot.ranger <- function(x, y, ..., data = NULL) {
+  if(is.null(data)) stop("Plotting a ranger model requires specifying a 'data' argument, with the data used to build the model.")
+  ranger_object <- x
+  if(("formula" %in% names(x$call))|("dependent.variable.name" %in% names(x$call))){
+    if("dependent.variable.name" %in% names(x$call)){
+      df <- data[, -match(x$call$dependent.variable.name, names(data))]
+      observed <- data[[x$call$dependent.variable.name]]
+    } else {
+      df <- get_all_vars(as.formula(x$call$formula), x$data)
+      observed <- df[[as.character(as.formula(x$call$formula)[2])]]
+    }
+  } else {
+    stop("Could not identify X and Y from data.")
+  }
+
+  predictions <- predict(ranger_object, data = df, predict.all = TRUE)$predictions
+  mses <- colMeans(sweep(predictions, 1, observed, "-")^2)
+  mses <- cumsum(mses) / 1:length(mses)
+  cumulative_predictions <- data.frame(num_trees = 1:length(mses), mse = mses)
+  ggplot(cumulative_predictions, aes_string(x = "num_trees", y = "mse")) +
+    geom_line() +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    labs(y = "Cumulative MSE", x = "Number of trees", title = "Convergence plot") +
+    geom_hline(yintercept = median(cumulative_predictions$mse), colour = "gray50", linetype = 2)
+}

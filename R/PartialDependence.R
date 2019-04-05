@@ -95,10 +95,50 @@ PartialDependence <-
            mod_levels = NULL,
            output = "plot",
            ...) {
-    #    #'
-    #    #' #' @param plot_int Logical, indicating whether a bivariate plot_int should
-    #    #' be plotted, using a heatmap. Only valid when the number of \code{vars} is 2.
+    UseMethod("PartialDependence", x)
+  }
 
+#' @method PartialDependence ranger
+#' @export
+PartialDependence.ranger <-
+  function(x,
+           vars = NULL,
+           pi = NULL,
+           rawdata = FALSE,
+           bw = FALSE,
+           resolution = NULL,
+           moderator = NULL,
+           mod_levels = NULL,
+           output = "plot",
+           ...,
+           data = NULL) {
+
+    if(is.null(data)) stop("Plotting Partial Dependences for a ranger model requires specifying a 'data' argument, with the data used to build the model.")
+    # Functions
+    args <- match.call()
+    out <- list(forest = x,
+                data = data,
+                call = as.character(x$call),
+                weights = rep(1, nrow(data)))
+      class(out) <- "MetaForest"
+      args$x <- out
+      args[[1]] <- as.name("PartialDependence")
+      eval(args, sys.frame(sys.parent()))
+    }
+
+#' @method PartialDependence MetaForest
+#' @export
+PartialDependence.MetaForest <-
+  function(x,
+           vars = NULL,
+           pi = NULL,
+           rawdata = FALSE,
+           bw = FALSE,
+           resolution = NULL,
+           moderator = NULL,
+           mod_levels = NULL,
+           output = "plot",
+           ...) {
     # Check input arguments ---------------------------------------------------
     if(hasArg("interaction")){
       stop("The argument 'interaction' has been deprecated, and is replaced by the argument 'moderator'. See ?PartialDependence for help on how to use the 'moderator' argument." )
@@ -447,8 +487,11 @@ create_plotlist <-
 
 
 #' @import grid gtable
-merge_plots <- function(plots){
-  target <- plots[[1]]$labels$y
+merge_plots <- function(plots, ...){
+  args <- match.call()
+  if(!("ylab" %in% names(args))){
+    ylab <- plots[[1]]$labels$y
+  }
   n_grobs <- length(plots)
   grob_rows <- floor(sqrt(n_grobs))
   grob_cols <- ceiling(sqrt(n_grobs))
@@ -476,7 +519,7 @@ merge_plots <- function(plots){
                       widths = unit(rep(1, grob_cols), "null"),
                       heights = unit(rep(1, grob_rows), "null"))
 
-  left <- textGrob(target, rot = 90, just = c(.5, .5))
+  left <- textGrob(ylab, rot = 90, just = c(.5, .5))
   gt <- gtable_add_cols(gt, widths = grobWidth(left)+ unit(0.5, "line"), 0)
   gt <- gtable_add_grob(gt, left, t = 1, b = nrow(gt),
                         l = 1, r = 1, z = Inf)

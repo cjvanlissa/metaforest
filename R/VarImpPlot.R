@@ -25,7 +25,7 @@ VarImpPlot <- function(mf, n.var = 30, sort = TRUE, ...) {
       ranger_object <- mf
     }
 
-    var_importance <- mf$forest$variable.importance
+    var_importance <- ranger_object$variable.importance
     var_importance <- data.frame(Variable=names(var_importance), importance=unname(var_importance))
     if(sort){
       var_importance <- var_importance[order(-var_importance$importance),]
