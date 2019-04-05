@@ -47,8 +47,15 @@ plot.ranger <- function(x, y, ..., data = NULL) {
   ranger_object <- x
   if(("formula" %in% names(x$call))|("dependent.variable.name" %in% names(x$call))){
     if("dependent.variable.name" %in% names(x$call)){
-      df <- data[, -match(x$call$dependent.variable.name, names(data))]
-      observed <- data[[x$call$dependent.variable.name]]
+      if("dependent.variable.name" %in% names(data)){
+        df <- data[, x$xNames]
+        observed <- data[[x$call$dependent.variable.name]]
+      } else {
+        df <- data[, x$xNames]
+        obs_var <- is.na(match(names(data), x$xNames))
+        if(!sum(obs_var) == 1) stop("Could not identify dependent variable.")
+        observed <- data[[which(obs_var)]]
+      }
     } else {
       df <- get_all_vars(as.formula(x$call$formula), x$data)
       observed <- df[[as.character(as.formula(x$call$formula)[2])]]
