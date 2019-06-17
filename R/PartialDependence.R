@@ -197,7 +197,7 @@ PartialDependence.MetaForest <-
         }
       }
     }
-
+    browser()
     plot_pi <- !is.null(pi)
     if (plot_pi) {
       if (!is.numeric(pi) |
