@@ -42,6 +42,7 @@ coef_test.rma <- function(x, par1, par2, distribution = "pt"){
            }
          )
   class(out) <- c("coef_test_results", class(out))
+  out
 }
 
 #' @method print coef_test_results
