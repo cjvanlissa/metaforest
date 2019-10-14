@@ -1,8 +1,13 @@
+#' @importFrom metafor rma
 MF <- function(formula, whichweights = "random",
                        num.trees = 500, mtry = NULL, method = "REML",
                        tau2 = NULL, ..., v, df) {
     y <- df[[1]]
-    rma_before <- metafor::rma(yi = y, vi = v, method = method)
+
+    rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
+      warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+      return(rma(yi = y, vi = v, method = "DL"))
+    })
 
     if(is.null(tau2)) tau2 <- rma_before$tau2
 
@@ -26,13 +31,17 @@ MF <- function(formula, whichweights = "random",
     # predictions on "new data":
     if(anyNA(mf$predictions)){
       which_na <- is.na(mf$predictions)
-      pred_df <- df[which_na, -1]
+      pred_df <- df[which_na, -1, drop = FALSE]
       mf$predictions[which_na] <- predict(mf, pred_df)$predictions
       warning("Some OOB predictions were NaN, and were replaced with predictions across all trees.")
     }
     # End of fix
     residuals <- y - mf$predictions
-    rma_after <- metafor::rma(yi = residuals, vi = v, method = method)
+
+    rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
+      warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+      return(rma(yi = residuals, vi = v, method = "DL"))
+    })
     output <- list(forest = mf, rma_before = rma_before, rma_after = rma_after, data = df, vi = v, weights = metaweights)
     class(output) <- "MetaForest"
     output

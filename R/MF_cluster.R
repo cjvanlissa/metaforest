@@ -22,7 +22,10 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
       stop("Error: Argument 'replace' not supported for clustered MetaForest.")
     }
 
-    rma_before <- metafor::rma(yi = y, vi = v, method = method)
+    rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
+      warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+      return(rma(yi = y, vi = v, method = "DL"))
+    })
 
     if(is.null(tau2)) tau2 <- rma_before$tau2
 
@@ -59,7 +62,11 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
     predicted[is.na(predicted)] <- res$rf2$predictions[!is.na(res$rf2$predictions)]
     residuals <- y - predicted
 
-    rma_after <- rma(yi = residuals, vi = v, method = method)
+    rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
+      warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+      return(rma(yi = residuals, vi = v, method = "DL"))
+    })
+
     forest <- list(predictions = predicted,
                    num.trees = num.trees,
                    num.independent.variables = res$rf1$num.independent.variables,
