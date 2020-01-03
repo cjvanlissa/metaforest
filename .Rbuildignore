@@ -6,3 +6,4 @@
 ^cran-comments\.md$
 man-roxygen
 ^\.travis\.yml$
+dev/
