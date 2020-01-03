@@ -12,5 +12,4 @@ mf.cluster.b1996 <- MetaForest(formula = yi~ selection + investigator + hand_ass
 
 sum <- summary(mf.cluster.b1996)
 
-test_that("Summary contains forest and rma", {expect_equal(names(sum), c("forest", "rma"))})
-test_that("Forest is vector and rma is matrix", {expect_equal(sapply(sum, class), c(forest = "character", rma = "matrix"))})
+test_that("Summary contains forest and rma", {expect_s3_class(sum, "summary.MetaForest")})

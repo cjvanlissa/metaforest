@@ -1,11 +1,11 @@
 # Version 0.1.3
 
-## First submission of new version
 See NEWS.md for changes since version 0.1.2
 
 ## Test environments
-* local Windows 10 Enterprise x64 install, R 3.5.1
+* local Windows 10 Enterprise x64 install, R 3.6.1
 * win-builder (devel and release)
+* Travis Ubuntu 16.04.6 LTS, R version 3.6.1
 
 ## R CMD check results
 There were no ERRORs or WARNINGs. 

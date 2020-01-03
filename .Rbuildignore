@@ -7,3 +7,5 @@
 man-roxygen
 ^\.travis\.yml$
 dev/
+^doc$
+^Meta$
