@@ -8,6 +8,7 @@
   the nearest even number.
 * Generic S3 methods are now properly declared as such, instead of being 
   exported with their own documentation.
+* Reduce dependencies by calculating partial dependence manually
 
 # Version 0.1.2
 
