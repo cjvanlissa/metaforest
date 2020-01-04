@@ -14,19 +14,52 @@ knitr::opts_chunk$set(
 )
 ```
 
+[![CRAN status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
 [![Travis-CI Build Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Coverage status](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg)](https://codecov.io/github/cjvanlissa/metaforest?branch=master)
 
-# metaforest
+# Website
+
+[Check the project website here](https://cjvanlissa.github.io/metaforest/)
+
+# Background
 
 The goal of MetaForest is to explore heterogeneity in meta-analytic data, identify important moderators, and explore the functional form of the relationship between moderators and effect size. To do so, MetaForest conducts a weighted random forest analysis, using random-effects or fixed-effects weights, as in classic meta-analysis, or uniform weights (unweighted random forest). Simulation studies have demonstrated that this technique has substantial power to detect relevant moderators, even in datasets as small as 20 cases (based on cross-validated $R^2$). Using a variable importance plot, important moderators can be identified, and using partial prediction plots, the shape of the marginal relationship between moderators and effect size can be visualized. MetaForest can be readily integrated in classical meta-analytic approaches: If MetaForest is conducted as a primary analysis, classic meta-analysis can be used to quantify heterogeneity (in fact, MetaForest by default reports a random-effects meta-analysis on the raw data, and the residuals of the random forests analysis), or to provide a simplified representation of the linear effects of important predictors. Conversely, a theory-driven classical meta-analysis could be complemented by an exploratory MetaForest analysis, as a final check to ensure that important moderators have not been overlooked. We hope that this approach will be of use to researchers, and that the availability of user-friendly R functions will facilitate its adoption.
 
-## Example
 
-This example demonstrates how one might go about conducting a meta-analysis using MetaForest:
+# Installation
 
-```{r example}
+You can install `metaforest` from CRAN with:
+
+```{r, eval = F}
+install.packages("metaforest")
+```
+
+# Documentation
+
+Every user-facing function in the package is documented, and the documentation can be accessed by running `?function_name` in the R console, e.g., `?graph`, or by checking the [project website](https://cjvanlissa.github.io/metaforest/reference/index.html)
+
+# Citing metaforest
+
+You can cite the method by referencing this open access book chapter:
+
+Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring heterogeneity using MetaForest. In R. Van De Schoot & M. Miočević (Eds.), *Small Sample Size Solutions (Open Access): A Guide for Applied Researchers and Practitioners.* CRC Press. https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222
+
+# Contributing and Contact Information
+
+If you have ideas, please get involved. You can contribute by opening an issue on GitHub, or sending a pull request with proposed features.
+
+* File a GitHub issue [here](https://github.com/cjvanlissa/metaforest)
+* Make a pull request [here](https://github.com/cjvanlissa/metaforest/pulls)
+
+By participating in this project, you agree to abide by the [Contributor Code of Conduct v2.0](https://www.contributor-covenant.org/).
+
+# Example analysis
+
+This example demonstrates how one might go about conducting a meta-analysis using MetaForest. For more information, check the [package vignette](https://cjvanlissa.github.io/metaforest/articles/Introduction_to_metaforest.html).
+
+```{r message=FALSE}
 #Load metaforest package
 library(metaforest)
 

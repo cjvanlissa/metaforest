@@ -52,8 +52,4 @@ data$X3 <- cut(data$X3, breaks = 2, labels = c("Small", "Big"))
 WeightedScatter(data, summarize = FALSE)
 WeightedScatter(data, vars = c("X3"))
 WeightedScatter(data, vars = c("X1", "X3"))
-# Save to file
-pdf("ws.plot.pdf")
-WeightedScatter(data, tau2 = .04)
-dev.off()
 }

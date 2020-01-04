@@ -35,10 +35,6 @@
 #' WeightedScatter(data, summarize = FALSE)
 #' WeightedScatter(data, vars = c("X3"))
 #' WeightedScatter(data, vars = c("X1", "X3"))
-#' # Save to file
-#' pdf("ws.plot.pdf")
-#' WeightedScatter(data, tau2 = .04)
-#' dev.off()
 WeightedScatter <-
   function(data,
            yi = "yi",

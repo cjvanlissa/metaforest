@@ -3,23 +3,21 @@
 See NEWS.md for changes since version 0.1.2
 
 ## Test environments
+
 * local Windows 10 Enterprise x64 install, R 3.6.1
-* win-builder (devel and release)
+* win-builder R version 3.6.2 (2019-12-12)
+* win-builder R Under development (unstable) (2020-01-03 r77629)
 * Travis Ubuntu 16.04.6 LTS, R version 3.6.1
+* R-hub 	Ubuntu Linux 16.04 LTS, R-release, GCC
+* R-hub Windows Server 2008 R2 SP1, R-devel, 32/64 bit
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
 
-There was 1 NOTE:
-
-* 	checking CRAN incoming feasibility ... NOTE
-	Maintainer: 'Caspar J. van Lissa <c.j.vanlissa@gmail.com>'
-
-	New submission
+0 errors v | 0 warnings v | 0 notes v
 
 ## Downstream dependencies
-None of the changes break existing functionality.
 
+None of the changes break existing functionality.
 
 # Version 0.1.2
 

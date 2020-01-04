@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">metaforest</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3</span>
       </span>
     </div>
 
@@ -78,7 +78,7 @@
       <h1>Introduction to metaforest</h1>
                         <h4 class="author">Caspar J. van Lissa</h4>
             
-            <h4 class="date">2020-01-03</h4>
+            <h4 class="date">2020-01-04</h4>
       
       
       <div class="hidden name"><code>Introduction_to_metaforest.Rmd</code></div>
@@ -91,11 +91,6 @@
 <p>Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring heterogeneity using MetaForest. In R. Van De Schoot &amp; M. Miočević (Eds.), <em>Small Sample Size Solutions (Open Access): A Guide for Applied Researchers and Practitioners.</em> CRC Press. <a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a></p>
 <p><strong>Please refer to that chapter for a more in-depth explanation, and please cite the chapter.</strong></p>
 <p>One of the most common applications of meta-analysis in the social sciences is to summarize a body of literature on a specific topic. The literature typically covers similar research questions, investigated in different laboratories, using different methods, instruments, and samples. We typically do not know beforehand which of these moderators will affect the effect size found. MetaForest is a machine-learning based, exploratory approach to identify relevant moderators in meta-analysis. MetaForest is an adaptation of the random forests algorithm for meta-analysis: Weighted bootstrap sampling is used to ensure that more precise studies exert greater influence in the model building stage. These weights can be uniform (each study has equal probability of being selected into the bootstrap sample), fixed-effects (studies with smaller sampling variance have a larger probability of being selected), or random-effects based (studies with smaller sampling variance have a larger probability of being selected, but this advantage is diminished as the amount of between-studies heterogeneity increases). Internally, <code>metaforest</code> relies on the <code>ranger</code> R-package; a fast implementation of the random forests in C++.</p>
-<div id="tuning-parameters" class="section level2">
-<h2 class="hasAnchor">
-<a href="#tuning-parameters" class="anchor"></a>Tuning parameters</h2>
-<p>MetaForest has several “tuning parameters”, whose optimal values must be determined empirically: 1) the number of candidate variables considered at each split of each tree; 2) the minimum number of cases that must remain in a post-split group within each tree; 3) the type of weights (uniform, fixed-, or random-effects). The optimal values for these tuning parameters are commonly determined using cross-validation, with the well-known machine learning R-package <code>caret</code>.</p>
-</div>
 <div id="tutorial-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tutorial-example" class="anchor"></a>Tutorial example</h2>
@@ -119,7 +114,7 @@
 <a class="sourceLine" id="cb2-6" title="6">                        <span class="dt">num.trees =</span> <span class="dv">20000</span>)</a>
 <a class="sourceLine" id="cb2-7" title="7"><span class="co"># Plot convergence trajectory</span></a>
 <a class="sourceLine" id="cb2-8" title="8"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(check_conv)</a></code></pre></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <p>This model has converged within approximately 5000 trees. Thus, we will use this number of trees for subsequent analyses. We now apply recursive pre-selection using the <code>preselect</code> function. Using <code>preselect_vars</code>, we retain only those moderators for which a 50% percentile interval of the variable importance metrics does not include zero.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Model with 5000 trees for replication</span></a>
 <a class="sourceLine" id="cb3-2" title="2">mf_rep &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MetaForest.html">MetaForest</a></span>(yi<span class="op">~</span>.,</a>
@@ -132,58 +127,59 @@
 <a class="sourceLine" id="cb3-9" title="9">                         <span class="dt">replications =</span> <span class="dv">100</span>,</a>
 <a class="sourceLine" id="cb3-10" title="10">                         <span class="dt">algorithm =</span> <span class="st">"recursive"</span>)</a>
 <a class="sourceLine" id="cb3-11" title="11"><span class="co"># Plot the results</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(preselected)</a></code></pre></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># Retain only moderators with positive variable importance in more than</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="co"># 50% of replications</span></a>
-<a class="sourceLine" id="cb4-3" title="3">retain_mods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/preselect_vars.html">preselect_vars</a></span>(preselected, <span class="dt">cutoff =</span> <span class="fl">.5</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb3-12" title="12"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(preselected)</a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co"># Retain only moderators with positive variable importance in more than</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="co"># 50% of replications</span></a>
+<a class="sourceLine" id="cb3-15" title="15">retain_mods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/preselect_vars.html">preselect_vars</a></span>(preselected, <span class="dt">cutoff =</span> <span class="fl">.5</span>)</a></code></pre></div>
+<div id="tuning-parameters" class="section level3">
+<h3 class="hasAnchor">
+<a href="#tuning-parameters" class="anchor"></a>Tuning parameters</h3>
+<p>MetaForest has several “tuning parameters”, whose optimal values must be determined empirically: 1) the number of candidate variables considered at each split of each tree; 2) the minimum number of cases that must remain in a post-split group within each tree; 3) the type of weights (uniform, fixed-, or random-effects). The optimal values for these tuning parameters are commonly determined using cross-validation, with the well-known machine learning R-package <code>caret</code>.</p>
 <p>Next, we tune the model using the R-package <code>caret</code>. The function <code>ModelInfo_mf</code> tells caret how to tune a MetaForest analysis. As tuning parameters, we consider all three types of weights (uniform, fixed-, and random-effects), number of candidate variables at each split from 2-6, and a minimum node size from 2-6. We select the model with smallest prediction error (RMSE) as final model, based on 10-fold clustered cross-validation.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># Load the caret library</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(caret)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; Loading required package: lattice</span></a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="co"># Set up 10-fold grouped (=clustered) CV</span></a>
-<a class="sourceLine" id="cb5-5" title="5">grouped_cv &lt;-<span class="st"> </span><span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">"cv"</span>, </a>
-<a class="sourceLine" id="cb5-6" title="6">                           <span class="dt">index =</span> <span class="kw">groupKFold</span>(data<span class="op">$</span>id_exp, <span class="dt">k =</span> <span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb5-7" title="7"></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co"># Set up a tuning grid for the three tuning parameters of MetaForest</span></a>
-<a class="sourceLine" id="cb5-9" title="9">tuning_grid &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(<span class="dt">whichweights =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"random"</span>, <span class="st">"fixed"</span>, <span class="st">"unif"</span>),</a>
-<a class="sourceLine" id="cb5-10" title="10">                       <span class="dt">mtry =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">6</span>,</a>
-<a class="sourceLine" id="cb5-11" title="11">                       <span class="dt">min.node.size =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">6</span>)</a>
-<a class="sourceLine" id="cb5-12" title="12"></a>
-<a class="sourceLine" id="cb5-13" title="13"><span class="co"># X should contain only retained moderators, clustering variable, and vi</span></a>
-<a class="sourceLine" id="cb5-14" title="14">X &lt;-<span class="st"> </span>data[, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"id_exp"</span>, <span class="st">"vi"</span>, retain_mods)]</a>
-<a class="sourceLine" id="cb5-15" title="15"></a>
-<a class="sourceLine" id="cb5-16" title="16"><span class="co"># Train the model</span></a>
-<a class="sourceLine" id="cb5-17" title="17">mf_cv &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">y =</span> data<span class="op">$</span>yi,</a>
-<a class="sourceLine" id="cb5-18" title="18">               <span class="dt">x =</span> X,</a>
-<a class="sourceLine" id="cb5-19" title="19">               <span class="dt">study =</span> <span class="st">"id_exp"</span>, <span class="co"># Name of the clustering variable</span></a>
-<a class="sourceLine" id="cb5-20" title="20">               <span class="dt">method =</span> <span class="kw"><a href="../reference/ModelInfo_mf.html">ModelInfo_mf</a></span>(), </a>
-<a class="sourceLine" id="cb5-21" title="21">               <span class="dt">trControl =</span> grouped_cv,</a>
-<a class="sourceLine" id="cb5-22" title="22">               <span class="dt">tuneGrid =</span> tuning_grid,</a>
-<a class="sourceLine" id="cb5-23" title="23">               <span class="dt">num.trees =</span> <span class="dv">5000</span>)</a>
-<a class="sourceLine" id="cb5-24" title="24"><span class="co">#&gt; Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo, :</span></a>
-<a class="sourceLine" id="cb5-25" title="25"><span class="co">#&gt; There were missing values in resampled performance measures.</span></a>
-<a class="sourceLine" id="cb5-26" title="26"><span class="co"># Examine optimal tuning parameters</span></a>
-<a class="sourceLine" id="cb5-27" title="27">mf_cv<span class="op">$</span>results[<span class="kw"><a href="https://rdrr.io/r/base/which.min.html">which.min</a></span>(mf_cv<span class="op">$</span>results<span class="op">$</span>RMSE), ]</a>
-<a class="sourceLine" id="cb5-28" title="28"><span class="co">#&gt;    whichweights mtry min.node.size      RMSE  Rsquared       MAE   RMSESD</span></a>
-<a class="sourceLine" id="cb5-29" title="29"><span class="co">#&gt; 20       random    5             6 0.4892338 0.4299537 0.3931925 0.117899</span></a>
-<a class="sourceLine" id="cb5-30" title="30"><span class="co">#&gt;    RsquaredSD     MAESD</span></a>
-<a class="sourceLine" id="cb5-31" title="31"><span class="co">#&gt; 20  0.3100794 0.1051674</span></a>
-<a class="sourceLine" id="cb5-32" title="32"></a>
-<a class="sourceLine" id="cb5-33" title="33"><span class="co"># Extract R^2_{cv} for the optimal tuning parameters</span></a>
-<a class="sourceLine" id="cb5-34" title="34">r2_cv &lt;-<span class="st"> </span>mf_cv<span class="op">$</span>results<span class="op">$</span>Rsquared[<span class="kw"><a href="https://rdrr.io/r/base/which.min.html">which.min</a></span>(mf_cv<span class="op">$</span>results<span class="op">$</span>RMSE)]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># Load the caret library</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(caret)</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co"># Set up 10-fold grouped (=clustered) CV</span></a>
+<a class="sourceLine" id="cb4-4" title="4">grouped_cv &lt;-<span class="st"> </span><span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">"cv"</span>, </a>
+<a class="sourceLine" id="cb4-5" title="5">                           <span class="dt">index =</span> <span class="kw">groupKFold</span>(data<span class="op">$</span>id_exp, <span class="dt">k =</span> <span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb4-6" title="6"></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co"># Set up a tuning grid for the three tuning parameters of MetaForest</span></a>
+<a class="sourceLine" id="cb4-8" title="8">tuning_grid &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(<span class="dt">whichweights =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"random"</span>, <span class="st">"fixed"</span>, <span class="st">"unif"</span>),</a>
+<a class="sourceLine" id="cb4-9" title="9">                       <span class="dt">mtry =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">6</span>,</a>
+<a class="sourceLine" id="cb4-10" title="10">                       <span class="dt">min.node.size =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb4-11" title="11"></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="co"># X should contain only retained moderators, clustering variable, and vi</span></a>
+<a class="sourceLine" id="cb4-13" title="13">X &lt;-<span class="st"> </span>data[, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"id_exp"</span>, <span class="st">"vi"</span>, retain_mods)]</a>
+<a class="sourceLine" id="cb4-14" title="14"></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="co"># Train the model</span></a>
+<a class="sourceLine" id="cb4-16" title="16">mf_cv &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">y =</span> data<span class="op">$</span>yi,</a>
+<a class="sourceLine" id="cb4-17" title="17">               <span class="dt">x =</span> X,</a>
+<a class="sourceLine" id="cb4-18" title="18">               <span class="dt">study =</span> <span class="st">"id_exp"</span>, <span class="co"># Name of the clustering variable</span></a>
+<a class="sourceLine" id="cb4-19" title="19">               <span class="dt">method =</span> <span class="kw"><a href="../reference/ModelInfo_mf.html">ModelInfo_mf</a></span>(), </a>
+<a class="sourceLine" id="cb4-20" title="20">               <span class="dt">trControl =</span> grouped_cv,</a>
+<a class="sourceLine" id="cb4-21" title="21">               <span class="dt">tuneGrid =</span> tuning_grid,</a>
+<a class="sourceLine" id="cb4-22" title="22">               <span class="dt">num.trees =</span> <span class="dv">5000</span>)</a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="co"># Examine optimal tuning parameters</span></a>
+<a class="sourceLine" id="cb4-24" title="24">mf_cv<span class="op">$</span>results[<span class="kw"><a href="https://rdrr.io/r/base/which.min.html">which.min</a></span>(mf_cv<span class="op">$</span>results<span class="op">$</span>RMSE), ]</a></code></pre></div>
+<pre><code>#&gt;    whichweights mtry min.node.size      RMSE Rsquared       MAE    RMSESD
+#&gt; 15       random    4             6 0.4823586 0.319665 0.4127035 0.1210057
+#&gt;    RsquaredSD     MAESD
+#&gt; 15  0.3700725 0.1321914</code></pre>
 <p>The object returned by <code>train</code> already contains the final model, estimated with the best combination of tuning parameters. Consequently, we can proceed directly to reporting the results. First, we examine convergence again . Then, we examine the <span class="math inline">\(R^2_{oob}\)</span>.</p>
+</div>
+<div id="inspecting-the-results" class="section level3">
+<h3 class="hasAnchor">
+<a href="#inspecting-the-results" class="anchor"></a>Inspecting the results</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># For convenience, extract final model</span></a>
 <a class="sourceLine" id="cb6-2" title="2">final &lt;-<span class="st"> </span>mf_cv<span class="op">$</span>finalModel</a>
 <a class="sourceLine" id="cb6-3" title="3"><span class="co"># Extract R^2_{oob} from the final model</span></a>
 <a class="sourceLine" id="cb6-4" title="4">r2_oob &lt;-<span class="st"> </span>final<span class="op">$</span>forest<span class="op">$</span>r.squared</a>
 <a class="sourceLine" id="cb6-5" title="5"><span class="co"># Plot convergence</span></a>
 <a class="sourceLine" id="cb6-6" title="6"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(final)</a></code></pre></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<p>We can conclude that the model has converged, and has a positive estimate of explained variance in new data, <span class="math inline">\(R^2_{oob} = 0.22\)</span>, <span class="math inline">\(R^2_{cv} = 0.43\)</span>. Now, we proceed to interpreting the model findings. We will plot the variable importance, and partial dependence plots.</p>
+<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>We can conclude that the model has converged, and has a positive estimate of explained variance in new data. Now, we proceed to interpreting the model findings. We will plot the variable importance, and partial dependence plots.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co"># Plot variable importance</span></a>
 <a class="sourceLine" id="cb7-2" title="2"><span class="kw"><a href="../reference/VarImpPlot.html">VarImpPlot</a></span>(final)</a></code></pre></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># Sort the variable names by importance, so that the</span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="co"># partial dependence plots will be ranked by importance</span></a>
 <a class="sourceLine" id="cb8-3" title="3">ordered_vars &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(final<span class="op">$</span>forest<span class="op">$</span>variable.importance)[</a>
@@ -191,8 +187,9 @@
 <a class="sourceLine" id="cb8-5" title="5"><span class="co"># Plot partial dependence</span></a>
 <a class="sourceLine" id="cb8-6" title="6"><span class="kw"><a href="../reference/PartialDependence.html">PartialDependence</a></span>(final, <span class="dt">vars =</span> ordered_vars,</a>
 <a class="sourceLine" id="cb8-7" title="7">                  <span class="dt">rawdata =</span> <span class="ot">TRUE</span>, <span class="dt">pi =</span> <span class="fl">.95</span>)</a></code></pre></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
+<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
 <p>Because this is an exploratory, non-parametric analysis, we cannot conclude whether any of these findings are “significant”. However, the <code>PartialDependence</code> function has two settings that help visualize the “importance” of a finding: <code>rawdata</code>, which plots the weighted raw data (studies with larger weights are plotted with a larger point size), thereby visualizing the variance around the mean prediction, and <code>pi</code>, which plots a (e.g., 95%) percentile interval of the predictions of individual trees in the model. This is not the same as a confidence interval, but it does show how variable or stable the model predictions are. This exploratory moderator analysis could be followed with a linear regression model, focusing only on relevant moderators identified by <code>MetaForest</code>.</p>
+</div>
 </div>
 <div id="more-information" class="section level2">
 <h2 class="hasAnchor">
@@ -209,8 +206,7 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#tuning-parameters">Tuning parameters</a></li>
-      <li><a href="#tutorial-example">Tutorial example</a></li>
+<li><a href="#tutorial-example">Tutorial example</a></li>
       <li><a href="#more-information">More information</a></li>
       </ul>
 </div>

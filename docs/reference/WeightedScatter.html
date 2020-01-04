@@ -75,7 +75,7 @@ character) predictors." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">metaforest</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.3</span>
       </span>
     </div>
 
@@ -189,11 +189,7 @@ displayed. Outliers are omitted, because the raw data fulfill this function.</p>
                       <span class='no'>x</span>[, <span class='fl'>1</span>] * <span class='no'>x</span>[, <span class='fl'>2</span>])$<span class='no'>training</span>
 <span class='no'>data</span>$<span class='no'>X2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span>(<span class='no'>data</span>$<span class='no'>X2</span>, <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Low"</span>, <span class='st'>"High"</span>))
 <span class='no'>data</span>$<span class='no'>X3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cut.html'>cut</a></span>(<span class='no'>data</span>$<span class='no'>X3</span>, <span class='kw'>breaks</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Small"</span>, <span class='st'>"Big"</span>))
-<span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>summarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='img'><img src='WeightedScatter-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"X3"</span>))</div><div class='img'><img src='WeightedScatter-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"X1"</span>, <span class='st'>"X3"</span>))</div><div class='img'><img src='WeightedScatter-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># Save to file</span>
-<span class='fu'><a href='https://rdrr.io/r/grDevices/pdf.html'>pdf</a></span>(<span class='st'>"ws.plot.pdf"</span>)
-<span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>tau2</span> <span class='kw'>=</span> <span class='fl'>.04</span>)
-<span class='fu'><a href='https://rdrr.io/r/grDevices/dev.html'>dev.off</a></span>()</div><div class='output co'>#&gt; pdf 
-#&gt;   2 </div></pre>
+<span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>summarize</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='img'><img src='WeightedScatter-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"X3"</span>))</div><div class='img'><img src='WeightedScatter-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>WeightedScatter</span>(<span class='no'>data</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"X1"</span>, <span class='st'>"X3"</span>))</div><div class='img'><img src='WeightedScatter-3.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -1,11 +1,20 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
 [![Travis-CI Build
 Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Coverage
 status](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg)](https://codecov.io/github/cjvanlissa/metaforest?branch=master)
 
-metaforest
+Website
+=======
+
+[Check the project website
+here](https://cjvanlissa.github.io/metaforest/)
+
+Background
 ==========
 
 The goal of MetaForest is to explore heterogeneity in meta-analytic
@@ -32,22 +41,57 @@ been overlooked. We hope that this approach will be of use to
 researchers, and that the availability of user-friendly R functions will
 facilitate its adoption.
 
-Example
--------
+Installation
+============
+
+You can install `metaforest` from CRAN with:
+
+``` r
+install.packages("metaforest")
+```
+
+Documentation
+=============
+
+Every user-facing function in the package is documented, and the
+documentation can be accessed by running `?function_name` in the R
+console, e.g., `?graph`, or by checking the [project
+website](https://cjvanlissa.github.io/metaforest/reference/index.html)
+
+Citing metaforest
+=================
+
+You can cite the method by referencing this open access book chapter:
+
+Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring
+heterogeneity using MetaForest. In R. Van De Schoot & M. Miočević
+(Eds.), *Small Sample Size Solutions (Open Access): A Guide for Applied
+Researchers and Practitioners.* CRC Press.
+<a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a>
+
+Contributing and Contact Information
+====================================
+
+If you have ideas, please get involved. You can contribute by opening an
+issue on GitHub, or sending a pull request with proposed features.
+
+-   File a GitHub issue [here](https://github.com/cjvanlissa/metaforest)
+-   Make a pull request
+    [here](https://github.com/cjvanlissa/metaforest/pulls)
+
+By participating in this project, you agree to abide by the [Contributor
+Code of Conduct v2.0](https://www.contributor-covenant.org/).
+
+Example analysis
+================
 
 This example demonstrates how one might go about conducting a
-meta-analysis using MetaForest:
+meta-analysis using MetaForest. For more information, check the [package
+vignette](https://cjvanlissa.github.io/metaforest/articles/Introduction_to_metaforest.html).
 
 ``` r
 #Load metaforest package
 library(metaforest)
-#> Loading required package: ggplot2
-#> Loading required package: metafor
-#> Loading required package: Matrix
-#> Loading 'metafor' package (version 2.0-0). For an overview 
-#> and introduction to the package please type: help(metafor).
-#> Loading required package: ranger
-#> Loading required package: data.table
 
 #Simulate a meta-analysis dataset with 20 studies, 1 relevant moderator, and 4 irrelevant moderators
 set.seed(42)
@@ -72,12 +116,9 @@ results
 #> R squared (OOB):               0.2970    
 #> 
 #> Tests for Heterogeneity: 
-#>                                tau2   tau2_SE I^2     H^2    Q-test  df
-#> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19
-#> Residuals (after MetaForest):  0.0099 0.0334  9.6420  1.1067 21.0275 19
-#>                                Q_p   
-#> Raw effect sizes:              0.0483
-#> Residuals (after MetaForest):  0.3353
+#>                                tau2   tau2_SE I^2     H^2    Q-test  df Q_p   
+#> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19 0.0483
+#> Residuals (after MetaForest):  0.0099 0.0334  9.6420  1.1067 21.0275 19 0.3353
 #> 
 #> 
 #> Random intercept meta-analyses:
@@ -106,12 +147,9 @@ summary(mf.random)
 #> R squared (OOB):               0.3438    
 #> 
 #> Tests for Heterogeneity: 
-#>                                tau2   tau2_SE I^2     H^2    Q-test  df
-#> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19
-#> Residuals (after MetaForest):  0.0031 0.0312  3.2094  1.0332 19.6300 19
-#>                                Q_p   
-#> Raw effect sizes:              0.0483
-#> Residuals (after MetaForest):  0.4171
+#>                                tau2   tau2_SE I^2     H^2    Q-test  df Q_p   
+#> Raw effect sizes:              0.0553 0.0486  37.2642 1.5940 30.2857 19 0.0483
+#> Residuals (after MetaForest):  0.0031 0.0312  3.2094  1.0332 19.6300 19 0.4171
 #> 
 #> 
 #> Random intercept meta-analyses:
