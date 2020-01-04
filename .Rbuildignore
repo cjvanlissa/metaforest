@@ -9,3 +9,6 @@ man-roxygen
 dev/
 ^doc$
 ^Meta$
+^\.Renviron$
+^.*\.RData$
+docs/

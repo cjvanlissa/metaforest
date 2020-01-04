@@ -1,7 +1,7 @@
 Package: metaforest
 Type: Package
 Date: 2020-03-01
- Title: Exploring Heterogeneity in Meta-Analysis using Random Forests
+Title: Exploring Heterogeneity in Meta-Analysis using Random Forests
 Version: 0.1.3.0004
 Author: Caspar J. van Lissa
 Maintainer: Caspar J. van Lissa <c.j.vanlissa@gmail.com>
@@ -17,11 +17,11 @@ Imports:
   gtable,
   grid
 Suggests:
-    testthat,
-    caret,
-    knitr,
-    rmarkdown,
-    covr
+  testthat,
+  caret,
+  knitr,
+  rmarkdown,
+  covr
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

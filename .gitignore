@@ -2,8 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
 .Rproj.user/
 inst/doc
 dev/
 doc
 Meta
+.RData
