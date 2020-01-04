@@ -35,7 +35,7 @@
 #' within each category. You can call \code{\link[stats]{quantile}} to cut the
 #' moderator at specific quantiles. If \code{moderator} is a factor variable,
 #' you can use \code{mod_levels} to specify a character vector with the factor
-#' levels to retain in the plot (i.e., droping the other factor levels).
+#' levels to retain in the plot (i.e., dropping the other factor levels).
 #' @param output Character. What type of output should be returned? Defaults to
 #' \code{"plot"}, which returns and plots a gtable object. To obtain a list of
 #' \code{ggplot} objects instead, provide the argument \code{"list"}.

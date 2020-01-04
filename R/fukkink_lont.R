@@ -29,7 +29,7 @@
 #'    \strong{DV_Knowledge} \tab \code{factor} \tab Test focused on knowledge\cr
 #'    \strong{DV_Skills} \tab \code{factor} \tab Test focused skills\cr
 #'    \strong{DV_Attitude} \tab \code{factor} \tab Test focused on attitudes\cr
-#'    \strong{DV_Alligned} \tab \code{factor} \tab Test alligned with the content of the training (yes/no)\cr
+#'    \strong{DV_Aligned} \tab \code{factor} \tab Test aligned with the content of the training (yes/no)\cr
 #'    \strong{Two_group_design} \tab \code{factor} \tab Single group, or two-group experimental design\cr
 #'    \strong{Trainee_Age} \tab \code{numeric} \tab Trainees’ age \cr
 #'    \strong{Trainee_Experience} \tab \code{numeric} \tab Trainees’ working experience\cr
