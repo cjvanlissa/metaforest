@@ -13,4 +13,4 @@ dev/
 ^.*\.RData$
 docs/
 ^CRAN-RELEASE$
-^*.ai$
+^.*\.ai$
