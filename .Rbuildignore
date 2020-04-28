@@ -12,3 +12,5 @@ dev/
 ^\.Renviron$
 ^.*\.RData$
 docs/
+^CRAN-RELEASE$
+^*.ai$
