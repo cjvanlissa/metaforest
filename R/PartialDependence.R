@@ -39,7 +39,7 @@
 #' @param output Character. What type of output should be returned? Defaults to
 #' \code{"plot"}, which returns and plots a gtable object. To obtain a list of
 #' \code{ggplot} objects instead, provide the argument \code{"list"}.
-#' @param ... Additional arguments to be passed to \code{marginalPrediction}.
+#' @param ... Additional arguments to be passed to and from functions.
 #' @return A gtable object.
 #' @import ggplot2
 #' @importFrom methods hasArg
@@ -233,6 +233,9 @@ PartialDependence.MetaForest <-
 
     cont_mod <- FALSE
     raw.data <- data.table(x$data, wi = x$weights)
+    setcolorder(raw.data, c(names(raw.data)[!names(raw.data) %in% x$forest$forest$independent.variable.names],
+                            x$forest$forest$independent.variable.names
+                            ))
     if (!is.null(moderator)) {
       if (inherits(x$data[[moderator]], c("numeric", "integer"))) {
         if (is.null(mod_levels)) {
