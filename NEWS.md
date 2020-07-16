@@ -1,3 +1,9 @@
+# Version 0.1.4
+
+* ClusterMF is hard deprecated. Replace any legacy call to ClusterMF with a call
+  to MetaForest with the same arguments.
+* Fixed PartialDependence for ranger objects
+
 # Version 0.1.3
 
 * ClusterMF is soft deprecated; it has the same functionality as 

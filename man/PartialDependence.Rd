@@ -4,9 +4,18 @@
 \alias{PartialDependence}
 \title{PartialDependence: Partial dependence plots}
 \usage{
-PartialDependence(x, vars = NULL, pi = NULL, rawdata = FALSE,
-  bw = FALSE, resolution = NULL, moderator = NULL,
-  mod_levels = NULL, output = "plot", ...)
+PartialDependence(
+  x,
+  vars = NULL,
+  pi = NULL,
+  rawdata = FALSE,
+  bw = FALSE,
+  resolution = NULL,
+  moderator = NULL,
+  mod_levels = NULL,
+  output = "plot",
+  ...
+)
 }
 \arguments{
 \item{x}{Model object.}
@@ -50,7 +59,7 @@ levels to retain in the plot (i.e., dropping the other factor levels).}
 \code{"plot"}, which returns and plots a gtable object. To obtain a list of
 \code{ggplot} objects instead, provide the argument \code{"list"}.}
 
-\item{...}{Additional arguments to be passed to \code{marginalPrediction}.}
+\item{...}{Additional arguments to be passed to and from functions.}
 }
 \value{
 A gtable object.

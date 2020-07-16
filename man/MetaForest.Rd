@@ -4,9 +4,18 @@
 \alias{MetaForest}
 \title{Conduct a MetaForest analysis to explore heterogeneity in meta-analytic data.}
 \usage{
-MetaForest(formula, data, vi = "vi", study = NULL,
-  whichweights = "random", num.trees = 500, mtry = NULL,
-  method = "REML", tau2 = NULL, ...)
+MetaForest(
+  formula,
+  data,
+  vi = "vi",
+  study = NULL,
+  whichweights = "random",
+  num.trees = 500,
+  mtry = NULL,
+  method = "REML",
+  tau2 = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{Formula. Specify a formula for the MetaForest model, for

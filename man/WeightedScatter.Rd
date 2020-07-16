@@ -6,8 +6,14 @@
 a function of either continuous (numeric, integer) or categorical (factor,
 character) predictors.}
 \usage{
-WeightedScatter(data, yi = "yi", vi = "vi", vars = NULL,
-  tau2 = NULL, summarize = TRUE)
+WeightedScatter(
+  data,
+  yi = "yi",
+  vi = "vi",
+  vars = NULL,
+  tau2 = NULL,
+  summarize = TRUE
+)
 }
 \arguments{
 \item{data}{A data.frame.}

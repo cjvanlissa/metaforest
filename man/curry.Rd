@@ -4,7 +4,9 @@
 \name{curry}
 \alias{curry}
 \title{Happy to Help?}
-\format{A data.frame with 56 rows and 18 columns.}
+\format{
+A data.frame with 56 rows and 18 columns.
+}
 \source{
 \href{https://doi.org/10.1016/j.jesp.2018.02.014}{
 doi:10.1016/j.jesp.2018.02.014}

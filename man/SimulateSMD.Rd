@@ -4,9 +4,16 @@
 \alias{SimulateSMD}
 \title{Simulates a meta-analytic dataset}
 \usage{
-SimulateSMD(k_train = 20, k_test = 100, mean_n = 40, es = 0.5,
-  tau2 = 0.04, moderators = 5, distribution = "normal", model = es
-  * x[, 1])
+SimulateSMD(
+  k_train = 20,
+  k_test = 100,
+  mean_n = 40,
+  es = 0.5,
+  tau2 = 0.04,
+  moderators = 5,
+  distribution = "normal",
+  model = es * x[, 1]
+)
 }
 \arguments{
 \item{k_train}{Atomic integer. The number of studies in the training dataset.
