@@ -321,8 +321,11 @@ create_plotlist <-
       .plot <- pd[[.thisgrob]]
       if(!rename_labels){
         .plot[, ("Variable") := names(pd[[.thisgrob]])[1]]
+        y_label <- names(raw.data)[1]
+
       } else {
         .plot[, ("Variable") := rename_fun(names(pd[[.thisgrob]])[1], names(label_elements), label_elements)]
+        y_label <- rename_fun(names(raw.data)[1], names(label_elements), label_elements)
       }
       if (plot_int) {
         if (cont_mod) {
@@ -363,7 +366,7 @@ create_plotlist <-
               )
             ) +
               scale_y_continuous(limits = y_limits) +
-              ylab(names(raw.data)[1])
+              ylab(y_label)
           } else {
             p <- ggplot(
               .plot,
@@ -376,7 +379,7 @@ create_plotlist <-
               )
             ) +
               scale_y_continuous(limits = y_limits) +
-              ylab(names(raw.data)[1])
+              ylab(y_label)
           }
         }
 
@@ -386,7 +389,7 @@ create_plotlist <-
           p <- ggplot(.plot, aes_string(x = names(.plot)[1],
                                         y = names(.plot)[2])) +
             scale_y_continuous(limits = y_limits) +
-            ylab(names(raw.data)[1])
+            ylab(y_label)
         } else {
           p <- ggplot(.plot,
                       aes_string(
@@ -399,7 +402,7 @@ create_plotlist <-
             scale_color_continuous(guide = "none") +
             scale_fill_continuous(guide = "none") +
             scale_y_continuous(limits = y_limits) +
-            ylab(names(raw.data)[1])
+            ylab(y_label)
         }
 
       }
