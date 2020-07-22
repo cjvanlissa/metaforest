@@ -3,6 +3,7 @@
 * ClusterMF is hard deprecated. Replace any legacy call to ClusterMF with a call
   to MetaForest with the same arguments.
 * Fixed PartialDependence for ranger objects
+* Fixed bug where the argument "vi" was passed on to ranger()
 
 # Version 0.1.3
 

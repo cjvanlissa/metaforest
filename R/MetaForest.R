@@ -125,7 +125,7 @@ MetaForest <- function(formula, data, vi = "vi", study = NULL,
 
     if(vi %in% names(df)) df <- df[-match(vi, names(df))]
     args[["v"]] <- data[[vi]]
-
+    args[["vi"]] <- NULL
     args[["formula"]] <- paste(formula[2], formula[3],sep = " ~ ")
     args[["data"]] <- NULL
     if(is.null(study)){
