@@ -3,7 +3,7 @@ library(metaforest)
 test_that("vi works", {
   expect_error({
     MetaForest(yi~.,
-               data = data,
+               data = fukkink_lont,
                vi = "vi",
                study = "id_exp",
                whichweights = "random",
