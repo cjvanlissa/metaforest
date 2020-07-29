@@ -139,6 +139,7 @@ PartialDependence.MetaForest <-
            mod_levels = NULL,
            output = "plot",
            ...) {
+    all_args <- as.list(match.call()[-1])
     # Check input arguments ---------------------------------------------------
     if(hasArg("interaction")){
       stop("The argument 'interaction' has been deprecated, and is replaced by the argument 'moderator'. See ?PartialDependence for help on how to use the 'moderator' argument." )
@@ -211,7 +212,7 @@ PartialDependence.MetaForest <-
     cases <- nrow(x$data)
 
     numeric_vars <-
-      which(sapply(x$data[select_vars], class) %in% c("numeric", "integer"))
+      which(sapply(x$data[select_vars], inherits, c("numeric", "integer")))
 
     if (is.null(resolution)) {
       resolution <-
@@ -268,6 +269,31 @@ PartialDependence.MetaForest <-
       do.call("create_marginal_preds",
               args)
     })
+
+    if(is.null(moderator) & "save_direction" %in% names(all_args)){
+      if(all_args[["save_direction"]]){
+        these_vars <- numeric_vars
+        if(length(select_vars[-numeric_vars]) > 0){
+          binary_cat_vars <- c(1:length(select_vars))[-numeric_vars][sapply(x$data[select_vars[-numeric_vars]], function(x){
+            length(unique(na.omit(x)))}) == 2]
+          these_vars <- sort(c(numeric_vars, binary_cat_vars))
+        }
+        signs <- sapply(pd[these_vars], function(thisvar){
+          out <- table(sign(c(-1, 0, 1, diff(thisvar$preds))))-1
+          if(any(out[c(1,3)] == 0)){
+            c("Negative monotonous", "Positive monotonous")[which(!out[c(1,3)] == 0)]
+          } else {
+            if(!out[1] == out[3]){
+              c("Mostly negative", "Mostly positive")[(out[1] < out[3])+1]
+            } else {
+              "Other"
+            }
+          }
+        })
+        names(signs) <- select_vars[these_vars]
+        write.csv(data.frame(Variable = select_vars[these_vars], Direction = signs), "direction.csv", row.names = FALSE)
+      }
+    }
 
     # Generate list of plots
     plots <-
