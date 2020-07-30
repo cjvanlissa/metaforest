@@ -271,7 +271,7 @@ PartialDependence.MetaForest <-
     })
 
     if(is.null(moderator) & "save_direction" %in% names(all_args)){
-      if(all_args[["save_direction"]]){
+
         these_vars <- numeric_vars
         if(length(select_vars[-numeric_vars]) > 0){
           binary_cat_vars <- c(1:length(select_vars))[-numeric_vars][sapply(x$data[select_vars[-numeric_vars]], function(x){
@@ -291,8 +291,7 @@ PartialDependence.MetaForest <-
           }
         })
         names(signs) <- select_vars[these_vars]
-        write.csv(data.frame(Variable = select_vars[these_vars], Direction = signs), "direction.csv", row.names = FALSE)
-      }
+        write.csv(data.frame(Variable = select_vars[these_vars], Direction = signs), file = all_args[["save_direction"]], row.names = FALSE)
     }
 
     # Generate list of plots
