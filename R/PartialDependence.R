@@ -269,7 +269,6 @@ PartialDependence.MetaForest <-
       do.call("create_marginal_preds",
               args)
     })
-
     if(is.null(moderator) & "save_direction" %in% names(all_args)){
 
         these_vars <- numeric_vars
@@ -281,17 +280,19 @@ PartialDependence.MetaForest <-
         signs <- sapply(pd[these_vars], function(thisvar){
           out <- table(sign(c(-1, 0, 1, diff(thisvar$preds))))-1
           if(any(out[c(1,3)] == 0)){
-            c("Negative monotonous", "Positive monotonous")[which(!out[c(1,3)] == 0)]
+            out <- c(out, c("Negative monotonous", "Positive monotonous")[which(!out[c(1,3)] == 0)])
           } else {
             if(!out[1] == out[3]){
-              c("Mostly negative", "Mostly positive")[(out[1] < out[3])+1]
+              out <- c(out, c("Mostly negative", "Mostly positive")[(out[1] < out[3])+1])
             } else {
-              "Other"
+              out <- c(out, "Other")
             }
           }
+          out
         })
-        names(signs) <- select_vars[these_vars]
-        write.csv(data.frame(Variable = select_vars[these_vars], Direction = signs), file = all_args[["save_direction"]], row.names = FALSE)
+        signs <- cbind(select_vars[these_vars], t(signs))
+        colnames(signs) <- c("Variable", "neg", "nul", "pos", "interpretation")
+        write.csv(signs, file = all_args[["save_direction"]], row.names = FALSE)
     }
 
     # Generate list of plots
