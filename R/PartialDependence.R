@@ -277,8 +277,9 @@ PartialDependence.MetaForest <-
             length(unique(na.omit(x)))}) == 2]
           these_vars <- sort(c(numeric_vars, binary_cat_vars))
         }
-        signs <- sapply(pd[these_vars], function(thisvar){
-          out <- table(sign(c(-1, 0, 1, diff(thisvar$preds))))-1
+        signs <- sapply(these_vars, function(vnum){
+          thisvar <- pd[[vnum]]
+          out <- c(select_vars[vnum], table(sign(c(-1, 0, 1, diff(thisvar$preds))))-1)
           if(any(out[c(1,3)] == 0)){
             out <- c(out, c("Negative monotonous", "Positive monotonous")[which(!out[c(1,3)] == 0)])
           } else {
@@ -290,9 +291,7 @@ PartialDependence.MetaForest <-
           }
           out
         })
-        signs <- cbind(select_vars[these_vars], t(signs))
-        colnames(signs) <- c("Variable", "neg", "nul", "pos", "interpretation")
-        write.csv(signs, file = all_args[["save_direction"]], row.names = FALSE)
+        write.csv(t(signs), file = all_args[["save_direction"]], row.names = FALSE, col.names = FALSE)
     }
 
     # Generate list of plots
