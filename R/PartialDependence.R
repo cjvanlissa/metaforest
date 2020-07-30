@@ -291,7 +291,9 @@ PartialDependence.MetaForest <-
           }
           out
         })
-        write.csv(t(signs), file = all_args[["save_direction"]], row.names = FALSE, col.names = FALSE)
+        zz <- file(description=normalizePath(all_args[["save_direction"]]),"w")
+        write.table(t(signs), file = zz, sep = ",", row.names = FALSE, col.names = FALSE)
+        close(zz)
     }
 
     # Generate list of plots
