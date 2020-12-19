@@ -1,6 +1,7 @@
 MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
                        mtry = NULL, method = "REML", tau2 = NULL, ...,
                        v, df, id) {
+  #browser()
     args <- match.call()[-1]
     if(!(num.trees%%2 == 0)){
       message("Conducting a clustered MetaForest analysis with an odd value of num.trees; num.trees has been rounded up to the nearest even number.")
@@ -56,10 +57,10 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
         holdout = TRUE, ...)
       })
     names(res) <- c("rf1", "rf2")
+    forest <- do.call(merge_mf_cluster, c(res, list(y = y)))
 
     ## Compute importance
-    predicted <- res$rf1$predictions
-    predicted[is.na(predicted)] <- res$rf2$predictions[!is.na(res$rf2$predictions)]
+    predicted <- forest$predictions
     residuals <- y - predicted
 
     rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
@@ -67,32 +68,6 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
       return(rma(yi = residuals, vi = v, method = "DL"))
     })
 
-    forest <- list(predictions = predicted,
-                   num.trees = num.trees,
-                   num.independent.variables = res$rf1$num.independent.variables,
-                   mtry = res$rf1$mtry,
-                   min.node.size = res$rf1$min.node.size,
-                   variable.importance = (res$rf1$variable.importance + res$rf2$variable.importance)/2,
-                   prediction.error = mean(c(res$rf1$prediction.error, res$rf2$prediction.error)),
-                   forest = list(dependent.varID = res$rf1$forest$dependent.varID,
-                                 num.trees = num.trees,
-                                 child.nodeIDs = c(rbind(res$rf1$forest$child.nodeIDs, res$rf2$forest$child.nodeIDs)),
-                                 split.varIDs = c(rbind(res$rf1$forest$split.varIDs, res$rf2$forest$split.varIDs)),
-                                 split.values = c(rbind(res$rf1$forest$split.values, res$rf2$forest$split.values)),
-                                 is.ordered = res$rf1$forest$is.ordered,
-                                 independent.variable.names = res$rf1$forest$independent.variable.names,
-                                 treetype = res$rf1$forest$treetype),
-                   #rf2 = res$rf2,
-                   splitrule = res$rf1$splitrule,
-                   treetype = res$rf1$treetype,
-                   r.squared = 1 - mean(c(res$rf1$prediction.error, res$rf2$prediction.error)) / var(y),
-                   call = formula,
-                   importance.mode = "permutation",
-                   num.samples = res$rf1$num.samples,
-                   cluster_forests = res
-                   )
-    class(forest) <- "ranger"
-    class(forest$forest) <- "ranger.forest"
     output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, data = df, vi = v, study = id, weights = metaweights)
     class(output) <- c("cluster_mf", "MetaForest")
     output
