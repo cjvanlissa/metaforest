@@ -61,7 +61,15 @@ plot.ranger <- function(x, y, ..., data = NULL) {
       observed <- df[[as.character(as.formula(x$call$formula)[2])]]
     }
   } else {
-    stop("Could not identify X and Y from data.")
+    df <- tryCatch({
+      cl <- x$call[1:2]
+      cl[[1L]] <- str2lang("stats::model.frame")
+      cl[["data"]] <- data
+      eval(cl, parent.frame())
+    }, error = function(e){
+      stop("Could not identify X and Y from data.")
+    })
+    observed <- df[[as.character(as.formula(x$call[[2]])[2])]]
   }
 
   predictions <- predict(ranger_object, data = df, predict.all = TRUE)$predictions
