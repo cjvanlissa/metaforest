@@ -1,3 +1,9 @@
+# Version 0.1.5
+
+* Fixed plot.ranger()
+* Fixed seq_unif.integer() so it will no longer duplicate unique values when
+  length.out exceeds the number of unique values
+
 # Version 0.1.4
 
 * ClusterMF is hard deprecated. Replace any legacy call to ClusterMF with a call

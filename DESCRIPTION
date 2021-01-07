@@ -2,7 +2,7 @@ Package: metaforest
 Type: Package
 Date: 2020-12-19
 Title: Exploring Heterogeneity in Meta-Analysis using Random Forests
-Version: 0.1.4.7
+Version: 0.1.4.8
 Author: Caspar J. van Lissa
 Maintainer: Caspar J. van Lissa <c.j.vanlissa@gmail.com>
 Description: Conduct random forests-based meta-analysis, obtain partial dependence plots for metaforest and classic meta-analyses, and cross-validate and tune metaforest- and classic meta-analyses in conjunction with the caret package. A requirement of classic meta-analysis is that the studies being aggregated are conceptually similar, and ideally, close replications. However, in many fields, there is substantial heterogeneity between studies on the same topic. Classic meta-analysis lacks the power to assess more than a handful of univariate moderators. MetaForest, by contrast, has substantial power to explore heterogeneity in meta-analysis. It can identify important moderators from a larger set of potential candidates, even with as little as 20 studies (Van Lissa, in preparation). This is an appealing quality, because many meta-analyses have small sample sizes. Moreover, MetaForest yields a measure of variable importance which can be used to identify important moderators, and offers partial prediction plots to explore the shape of the marginal relationship between moderators and effect size.

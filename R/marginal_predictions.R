@@ -70,13 +70,13 @@ seq_unif.numeric <- function(x, length.out){
 seq_unif.integer <- function (x, length.out) {
   min.x = min(x, na.rm = TRUE)
   max.x = max(x, na.rm = TRUE)
+  unique_vals <- length(unique(x))
   x.length = max.x - min.x
-  if (length.out > length(unique(x))) {
-    sort(x)
+  if (length.out > unique_vals) {
+    unique(sort(x))
   }
   else {
-    as.integer(round(seq.int(min.x, max.x, length.out = length.out)),
-               0)
+    seq.int(min.x, max.x, length.out = length.out)
   }
 }
 
