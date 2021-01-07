@@ -1,10 +1,12 @@
-# Version 0.1.3
+# Version 0.1.5
 
-See NEWS.md for changes since version 0.1.2
+* Fixed plot.ranger()
+* Fixed seq_unif.integer() so it will no longer duplicate unique values when
+  length.out exceeds the number of unique values
 
 ## Test environments
 
-* local Windows 10 Enterprise x64 install, R 3.6.1
+* local Windows 10 Enterprise x64 install, R version 4.0.3 (2020-10-10)
 * win-builder R version 3.6.2 (2019-12-12)
 * win-builder R Under development (unstable) (2020-01-03 r77629)
 * Travis Ubuntu 16.04.6 LTS, R version 3.6.1

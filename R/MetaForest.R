@@ -63,7 +63,7 @@
 #' are thus included in the same cross-validation sample. Then, two random
 #' forests are grown on these cross-validation samples, and for each random
 #' forest, the other sample is used to calculate prediction error and variable
-#' importance (see \href{http://doi.org/10.1007/s11634-016-0276-4}{Janitza,
+#' importance (see \href{https://doi.org/10.1007/s11634-016-0276-4}{Janitza,
 #' Celik, & Boulesteix, 2016}).
 #' @import stats
 #' @import ranger
