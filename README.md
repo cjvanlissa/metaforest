@@ -1,7 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-MetaForest <a href='https://cjvanlissa.github.io/metaforest/'><img src='https://github.com/cjvanlissa/worcs/raw/master/docs/metaforest_icon.png' align="right" height="139" /></a>
-==================================================================================================================================================================================
+MetaForest <a href='https://cjvanlissa.github.io/metaforest/'><img src='https://github.com/cjvanlissa/metaforest/raw/master/docs/metaforest_icon.png' align="right" height="139" /></a>
+=======================================================================================================================================================================================
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
