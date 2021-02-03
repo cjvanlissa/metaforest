@@ -1,11 +1,9 @@
-^codecov\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^README-.*\.png$
 ^cran-comments\.md$
 man-roxygen
-^\.travis\.yml$
 dev/
 ^doc$
 ^Meta$
@@ -14,3 +12,4 @@ dev/
 docs/
 ^CRAN-RELEASE$
 ^.*\.ai$
+^\.github$

@@ -2,14 +2,10 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
-[![Travis-CI Build
-Status](https://travis-ci.org/cjvanlissa/metaforest.svg?branch=master)](https://travis-ci.org/cjvanlissa/metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Coverage
-status](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg)](https://codecov.io/github/cjvanlissa/metaforest?branch=master)
-
-Website
-=======
+[![R-CMD-check](https://github.com/cjvanlissa/metaforest/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/metaforest/actions)
+[![test-coverage](https://github.com/cjvanlissa/metaforest/workflows/test-coverage/badge.svg)](https://github.com/cjvanlissa/metaforest/actions)
+\# Website
 
 [Check the project website
 here](https://cjvanlissa.github.io/metaforest/)
@@ -81,6 +77,11 @@ issue on GitHub, or sending a pull request with proposed features.
 
 By participating in this project, you agree to abide by the [Contributor
 Code of Conduct v2.0](https://www.contributor-covenant.org/).
+Contributions to the package must adhere to the [tidyverse style
+guide](https://style.tidyverse.org/). When contributing code, please add
+tests for that contribution to the `tests/testthat` folder, and ensure
+that these tests pass in the [GitHub Actions
+panel](https://github.com/cjvanlissa/worcs/actions/workflows/R-CMD-check).
 
 Example analysis
 ================
