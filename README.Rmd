@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![R-CMD-check](https://github.com/cjvanlissa/metaforest/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/metaforest/actions)
-[![test-coverage](https://github.com/cjvanlissa/metaforest/workflows/test-coverage/badge.svg)](https://github.com/cjvanlissa/metaforest/actions)
+[![codecov](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg?token=KuBBTF3CjU)](https://codecov.io/gh/cjvanlissa/metaforest)
 
 # Background
 
