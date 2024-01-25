@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,23 +33,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">metaforest</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.4.8</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,9 +72,10 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to metaforest</h1>
-                        <h4 class="author">Caspar J. van Lissa</h4>
+                        <h4 data-toc-skip class="author">Caspar J. van
+Lissa</h4>
             
-            <h4 class="date">2020-07-16</h4>
+            <h4 data-toc-skip class="date">2024-01-25</h4>
       
       
       <div class="hidden name"><code>Introduction_to_metaforest.Rmd</code></div>
@@ -87,140 +84,195 @@
 
     
     
-<p><strong>This Vignette is based on the Open-Access book chapter:</strong></p>
-<p>Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring heterogeneity using MetaForest. In R. Van De Schoot &amp; M. Miočević (Eds.), <em>Small Sample Size Solutions (Open Access): A Guide for Applied Researchers and Practitioners.</em> CRC Press. <a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a></p>
-<p><strong>Please refer to that chapter for a more in-depth explanation, and please cite the chapter.</strong></p>
-<p>One of the most common applications of meta-analysis in the social sciences is to summarize a body of literature on a specific topic. The literature typically covers similar research questions, investigated in different laboratories, using different methods, instruments, and samples. We typically do not know beforehand which of these moderators will affect the effect size found. MetaForest is a machine-learning based, exploratory approach to identify relevant moderators in meta-analysis. MetaForest is an adaptation of the random forests algorithm for meta-analysis: Weighted bootstrap sampling is used to ensure that more precise studies exert greater influence in the model building stage. These weights can be uniform (each study has equal probability of being selected into the bootstrap sample), fixed-effects (studies with smaller sampling variance have a larger probability of being selected), or random-effects based (studies with smaller sampling variance have a larger probability of being selected, but this advantage is diminished as the amount of between-studies heterogeneity increases). Internally, <code>metaforest</code> relies on the <code>ranger</code> R-package; a fast implementation of the random forests in C++.</p>
-<div id="tutorial-example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#tutorial-example" class="anchor"></a>Tutorial example</h2>
-<p>To illustrate how to use MetaForest, I will re-analyze the published work of Fukkink and Lont (2007), who have graciously shared their data. The authors examined the effectiveness of training on the competency of childcare providers. The sample is small, consisting of 78 effect sizes derived from 17 unique samples.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># Install the metaforest package. This needs to be done only once.</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"metaforest"</span>)
-<span class="co"># Then, load the metaforest package</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">metaforest</span>)
-<span class="co"># Assign the fukkink_lont data, which is included in</span>
-<span class="co"># the metaforest package, to an object called "data"</span>
-<span class="no">data</span> <span class="kw">&lt;-</span> <span class="no">fukkink_lont</span>
-<span class="co"># Because MetaForest uses the random number generator (for bootstrapping),</span>
-<span class="co"># we set a random seed so analyses can be replicated exactly.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">62</span>)</pre></body></html></div>
-<p>First, check model convergence by examining the cumulative mean squared out-of-bag prediction error (MSE) as a function of the number of trees in the model. When the MSE stabilizes, the model is said to have converged.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Run model with many trees to check convergence</span>
-<span class="no">check_conv</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/MetaForest.html">MetaForest</a></span>(<span class="no">yi</span>~<span class="no">.</span>,
-                        <span class="kw">data</span> <span class="kw">=</span> <span class="no">data</span>,
-                        <span class="kw">study</span> <span class="kw">=</span> <span class="st">"id_exp"</span>,
-                        <span class="kw">whichweights</span> <span class="kw">=</span> <span class="st">"random"</span>,
-                        <span class="kw">num.trees</span> <span class="kw">=</span> <span class="fl">20000</span>)
-<span class="co"># Plot convergence trajectory</span>
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">check_conv</span>)</pre></body></html></div>
-<pre><code>#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :
-#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</code></pre>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<p>This model has converged within approximately 5000 trees. Thus, we will use this number of trees for subsequent analyses. We now apply recursive pre-selection using the <code>preselect</code> function. Using <code>preselect_vars</code>, we retain only those moderators for which a 50% percentile interval of the variable importance metrics does not include zero.</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># Model with 5000 trees for replication</span>
-<span class="no">mf_rep</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/MetaForest.html">MetaForest</a></span>(<span class="no">yi</span>~<span class="no">.</span>,
-                        <span class="kw">data</span> <span class="kw">=</span> <span class="no">data</span>,
-                        <span class="kw">study</span> <span class="kw">=</span> <span class="st">"id_exp"</span>,
-                        <span class="kw">whichweights</span> <span class="kw">=</span> <span class="st">"random"</span>,
-                        <span class="kw">num.trees</span> <span class="kw">=</span> <span class="fl">5000</span>)
-<span class="co"># Run recursive preselection, store results in object 'preselect'</span>
-<span class="no">preselected</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/preselect.html">preselect</a></span>(<span class="no">mf_rep</span>,
-                         <span class="kw">replications</span> <span class="kw">=</span> <span class="fl">100</span>,
-                         <span class="kw">algorithm</span> <span class="kw">=</span> <span class="st">"recursive"</span>)
-<span class="co"># Plot the results</span>
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">preselected</span>)
-<span class="co"># Retain only moderators with positive variable importance in more than</span>
-<span class="co"># 50% of replications</span>
-<span class="no">retain_mods</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/preselect_vars.html">preselect_vars</a></span>(<span class="no">preselected</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">.5</span>)</pre></body></html></div>
-<div id="tuning-parameters" class="section level3">
-<h3 class="hasAnchor">
-<a href="#tuning-parameters" class="anchor"></a>Tuning parameters</h3>
-<p>MetaForest has several “tuning parameters”, whose optimal values must be determined empirically: 1) the number of candidate variables considered at each split of each tree; 2) the minimum number of cases that must remain in a post-split group within each tree; 3) the type of weights (uniform, fixed-, or random-effects). The optimal values for these tuning parameters are commonly determined using cross-validation, with the well-known machine learning R-package <code>caret</code>.</p>
-<p>Next, we tune the model using the R-package <code>caret</code>. The function <code>ModelInfo_mf</code> tells caret how to tune a MetaForest analysis. As tuning parameters, we consider all three types of weights (uniform, fixed-, and random-effects), number of candidate variables at each split from 2-6, and a minimum node size from 2-6. We select the model with smallest prediction error (RMSE) as final model, based on 10-fold clustered cross-validation.</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="co"># Load the caret library</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">caret</span>)
-<span class="co"># Set up 10-fold grouped (=clustered) CV</span>
-<span class="no">grouped_cv</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/trainControl.html">trainControl</a></span>(<span class="kw">method</span> <span class="kw">=</span> <span class="st">"cv"</span>,
-                           <span class="kw">index</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/createDataPartition.html">groupKFold</a></span>(<span class="no">data</span>$<span class="no">id_exp</span>, <span class="kw">k</span> <span class="kw">=</span> <span class="fl">10</span>))
-
-<span class="co"># Set up a tuning grid for the three tuning parameters of MetaForest</span>
-<span class="no">tuning_grid</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(<span class="kw">whichweights</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"random"</span>, <span class="st">"fixed"</span>, <span class="st">"unif"</span>),
-                       <span class="kw">mtry</span> <span class="kw">=</span> <span class="fl">2</span>:<span class="fl">6</span>,
-                       <span class="kw">min.node.size</span> <span class="kw">=</span> <span class="fl">2</span>:<span class="fl">6</span>)
-
-<span class="co"># X should contain only retained moderators, clustering variable, and vi</span>
-<span class="no">X</span> <span class="kw">&lt;-</span> <span class="no">data</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"id_exp"</span>, <span class="st">"vi"</span>, <span class="no">retain_mods</span>)]
-
-<span class="co"># Train the model</span>
-<span class="no">mf_cv</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/train.html">train</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">data</span>$<span class="no">yi</span>,
-               <span class="kw">x</span> <span class="kw">=</span> <span class="no">X</span>,
-               <span class="kw">study</span> <span class="kw">=</span> <span class="st">"id_exp"</span>, <span class="co"># Name of the clustering variable</span>
-               <span class="kw">method</span> <span class="kw">=</span> <span class="fu"><a href="../reference/ModelInfo_mf.html">ModelInfo_mf</a></span>(),
-               <span class="kw">trControl</span> <span class="kw">=</span> <span class="no">grouped_cv</span>,
-               <span class="kw">tuneGrid</span> <span class="kw">=</span> <span class="no">tuning_grid</span>,
-               <span class="kw">num.trees</span> <span class="kw">=</span> <span class="fl">5000</span>)
-<span class="co"># Examine optimal tuning parameters</span>
-<span class="no">mf_cv</span>$<span class="no">results</span>[<span class="fu"><a href="https://rdrr.io/r/base/which.min.html">which.min</a></span>(<span class="no">mf_cv</span>$<span class="no">results</span>$<span class="no">RMSE</span>), ]</pre></body></html></div>
-<pre><code>#&gt;    whichweights mtry min.node.size      RMSE Rsquared       MAE    RMSESD
-#&gt; 15       random    4             6 0.4823586 0.319665 0.4127035 0.1210057
-#&gt;    RsquaredSD     MAESD
-#&gt; 15  0.3700725 0.1321914</code></pre>
-<p>The object returned by <code>train</code> already contains the final model, estimated with the best combination of tuning parameters. Consequently, we can proceed directly to reporting the results. First, we examine convergence again . Then, we examine the <span class="math inline">\(R^2_{oob}\)</span>.</p>
+<p><strong>This Vignette is based on the Open-Access book
+chapter:</strong></p>
+<p>Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring
+heterogeneity using MetaForest. In R. Van De Schoot &amp; M. Miočević
+(Eds.), <em>Small Sample Size Solutions (Open Access): A Guide for
+Applied Researchers and Practitioners.</em> CRC Press. <a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="external-link uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a></p>
+<p><strong>Please refer to that chapter for a more in-depth explanation,
+and please cite the chapter.</strong></p>
+<p>One of the most common applications of meta-analysis in the social
+sciences is to summarize a body of literature on a specific topic. The
+literature typically covers similar research questions, investigated in
+different laboratories, using different methods, instruments, and
+samples. We typically do not know beforehand which of these moderators
+will affect the effect size found. MetaForest is a machine-learning
+based, exploratory approach to identify relevant moderators in
+meta-analysis. MetaForest is an adaptation of the random forests
+algorithm for meta-analysis: Weighted bootstrap sampling is used to
+ensure that more precise studies exert greater influence in the model
+building stage. These weights can be uniform (each study has equal
+probability of being selected into the bootstrap sample), fixed-effects
+(studies with smaller sampling variance have a larger probability of
+being selected), or random-effects based (studies with smaller sampling
+variance have a larger probability of being selected, but this advantage
+is diminished as the amount of between-studies heterogeneity increases).
+Internally, <code>metaforest</code> relies on the <code>ranger</code>
+R-package; a fast implementation of the random forests in C++.</p>
+<div class="section level2">
+<h2 id="tutorial-example">Tutorial example<a class="anchor" aria-label="anchor" href="#tutorial-example"></a>
+</h2>
+<p>To illustrate how to use MetaForest, I will re-analyze the published
+work of Fukkink and Lont (2007), who have graciously shared their data.
+The authors examined the effectiveness of training on the competency of
+childcare providers. The sample is small, consisting of 78 effect sizes
+derived from 17 unique samples.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install the metaforest package. This needs to be done only once.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"metaforest"</span><span class="op">)</span></span>
+<span><span class="co"># Then, load the metaforest package</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">metaforest</span><span class="op">)</span></span>
+<span><span class="co"># Assign the fukkink_lont data, which is included in</span></span>
+<span><span class="co"># the metaforest package, to an object called "data"</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">fukkink_lont</span></span>
+<span><span class="co"># Because MetaForest uses the random number generator (for bootstrapping),</span></span>
+<span><span class="co"># we set a random seed so analyses can be replicated exactly.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">62</span><span class="op">)</span></span></code></pre></div>
+<p>First, check model convergence by examining the cumulative mean
+squared out-of-bag prediction error (MSE) as a function of the number of
+trees in the model. When the MSE stabilizes, the model is said to have
+converged.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Run model with many trees to check convergence</span></span>
+<span><span class="va">check_conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/MetaForest.html">MetaForest</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">.</span>,</span>
+<span>                        data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                        study <span class="op">=</span> <span class="st">"id_exp"</span>,</span>
+<span>                        whichweights <span class="op">=</span> <span class="st">"random"</span>,</span>
+<span>                        num.trees <span class="op">=</span> <span class="fl">20000</span><span class="op">)</span></span>
+<span><span class="co"># Plot convergence trajectory</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">check_conv</span><span class="op">)</span></span></code></pre></div>
+<p>This model has converged within approximately 5000 trees. Thus, we
+will use this number of trees for subsequent analyses. We now apply
+recursive pre-selection using the <code>preselect</code> function. Using
+<code>preselect_vars</code>, we retain only those moderators for which a
+50% percentile interval of the variable importance metrics does not
+include zero.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Model with 5000 trees for replication</span></span>
+<span><span class="va">mf_rep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/MetaForest.html">MetaForest</a></span><span class="op">(</span><span class="va">yi</span><span class="op">~</span><span class="va">.</span>,</span>
+<span>                        data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                        study <span class="op">=</span> <span class="st">"id_exp"</span>,</span>
+<span>                        whichweights <span class="op">=</span> <span class="st">"random"</span>,</span>
+<span>                        num.trees <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
+<span><span class="co"># Run recursive preselection, store results in object 'preselect'</span></span>
+<span><span class="va">preselected</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/preselect.html">preselect</a></span><span class="op">(</span><span class="va">mf_rep</span>,</span>
+<span>                         replications <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                         algorithm <span class="op">=</span> <span class="st">"recursive"</span><span class="op">)</span></span>
+<span><span class="co"># Plot the results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">preselected</span><span class="op">)</span></span>
+<span><span class="co"># Retain only moderators with positive variable importance in more than</span></span>
+<span><span class="co"># 50% of replications</span></span>
+<span><span class="va">retain_mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/preselect_vars.html">preselect_vars</a></span><span class="op">(</span><span class="va">preselected</span>, cutoff <span class="op">=</span> <span class="fl">.5</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="tuning-parameters">Tuning parameters<a class="anchor" aria-label="anchor" href="#tuning-parameters"></a>
+</h3>
+<p>MetaForest has several “tuning parameters”, whose optimal values must
+be determined empirically: 1) the number of candidate variables
+considered at each split of each tree; 2) the minimum number of cases
+that must remain in a post-split group within each tree; 3) the type of
+weights (uniform, fixed-, or random-effects). The optimal values for
+these tuning parameters are commonly determined using cross-validation,
+with the well-known machine learning R-package <code>caret</code>.</p>
+<p>Next, we tune the model using the R-package <code>caret</code>. The
+function <code>ModelInfo_mf</code> tells caret how to tune a MetaForest
+analysis. As tuning parameters, we consider all three types of weights
+(uniform, fixed-, and random-effects), number of candidate variables at
+each split from 2-6, and a minimum node size from 2-6. We select the
+model with smallest prediction error (RMSE) as final model, based on
+10-fold clustered cross-validation.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load the caret library</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
+<span><span class="co"># Set up 10-fold grouped (=clustered) CV</span></span>
+<span><span class="va">grouped_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/trainControl.html" class="external-link">trainControl</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"cv"</span>, </span>
+<span>                           index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/createDataPartition.html" class="external-link">groupKFold</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">id_exp</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set up a tuning grid for the three tuning parameters of MetaForest</span></span>
+<span><span class="va">tuning_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>whichweights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"random"</span>, <span class="st">"fixed"</span>, <span class="st">"unif"</span><span class="op">)</span>,</span>
+<span>                       mtry <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">6</span>,</span>
+<span>                       min.node.size <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># X should contain only retained moderators, clustering variable, and vi</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"id_exp"</span>, <span class="st">"vi"</span>, <span class="va">retain_mods</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Train the model</span></span>
+<span><span class="va">mf_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/train.html" class="external-link">train</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">data</span><span class="op">$</span><span class="va">yi</span>,</span>
+<span>               x <span class="op">=</span> <span class="va">X</span>,</span>
+<span>               study <span class="op">=</span> <span class="st">"id_exp"</span>, <span class="co"># Name of the clustering variable</span></span>
+<span>               method <span class="op">=</span> <span class="fu"><a href="../reference/ModelInfo_mf.html">ModelInfo_mf</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>               trControl <span class="op">=</span> <span class="va">grouped_cv</span>,</span>
+<span>               tuneGrid <span class="op">=</span> <span class="va">tuning_grid</span>,</span>
+<span>               num.trees <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
+<span><span class="co"># Examine optimal tuning parameters</span></span>
+<span><span class="va">mf_cv</span><span class="op">$</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">mf_cv</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">RMSE</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
+<p>The object returned by <code>train</code> already contains the final
+model, estimated with the best combination of tuning parameters.
+Consequently, we can proceed directly to reporting the results. First,
+we examine convergence again . Then, we examine the <span class="math inline">\(R^2_{oob}\)</span>.</p>
 </div>
-<div id="inspecting-the-results" class="section level3">
-<h3 class="hasAnchor">
-<a href="#inspecting-the-results" class="anchor"></a>Inspecting the results</h3>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># For convenience, extract final model</span>
-<span class="no">final</span> <span class="kw">&lt;-</span> <span class="no">mf_cv</span>$<span class="no">finalModel</span>
-<span class="co"># Extract R^2_{oob} from the final model</span>
-<span class="no">r2_oob</span> <span class="kw">&lt;-</span> <span class="no">final</span>$<span class="no">forest</span>$<span class="no">r.squared</span>
-<span class="co"># Plot convergence</span>
-<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">final</span>)
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span></pre></body></html></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
-<p>We can conclude that the model has converged, and has a positive estimate of explained variance in new data. Now, we proceed to interpreting the model findings. We will plot the variable importance, and partial dependence plots.</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># Plot variable importance</span>
-<span class="fu"><a href="../reference/VarImpPlot.html">VarImpPlot</a></span>(<span class="no">final</span>)</pre></body></html></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co"># Sort the variable names by importance, so that the</span>
-<span class="co"># partial dependence plots will be ranked by importance</span>
-<span class="no">ordered_vars</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">final</span>$<span class="no">forest</span>$<span class="no">variable.importance</span>)[
-  <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span>(<span class="no">final</span>$<span class="no">forest</span>$<span class="no">variable.importance</span>, <span class="kw">decreasing</span> <span class="kw">=</span> <span class="fl">TRUE</span>)]
-<span class="co"># Plot partial dependence</span>
-<span class="fu"><a href="../reference/PartialDependence.html">PartialDependence</a></span>(<span class="no">final</span>, <span class="kw">vars</span> <span class="kw">=</span> <span class="no">ordered_vars</span>,
-                  <span class="kw">rawdata</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">pi</span> <span class="kw">=</span> <span class="fl">.95</span>)
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span>
-
-<span class="co">#&gt; Warning in predict.ranger.forest(forest, data, predict.all, num.trees, type, :</span>
-<span class="co">#&gt; Forest grown in ranger version &lt;0.11.5, converting ...</span></pre></body></html></div>
-<p><img src="Introduction_to_metaforest_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
-<p>Because this is an exploratory, non-parametric analysis, we cannot conclude whether any of these findings are “significant”. However, the <code>PartialDependence</code> function has two settings that help visualize the “importance” of a finding: <code>rawdata</code>, which plots the weighted raw data (studies with larger weights are plotted with a larger point size), thereby visualizing the variance around the mean prediction, and <code>pi</code>, which plots a (e.g., 95%) percentile interval of the predictions of individual trees in the model. This is not the same as a confidence interval, but it does show how variable or stable the model predictions are. This exploratory moderator analysis could be followed with a linear regression model, focusing only on relevant moderators identified by <code>MetaForest</code>.</p>
+<div class="section level3">
+<h3 id="inspecting-the-results">Inspecting the results<a class="anchor" aria-label="anchor" href="#inspecting-the-results"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># For convenience, extract final model</span></span>
+<span><span class="va">final</span> <span class="op">&lt;-</span> <span class="va">mf_cv</span><span class="op">$</span><span class="va">finalModel</span></span>
+<span><span class="co"># Extract R^2_{oob} from the final model</span></span>
+<span><span class="va">r2_oob</span> <span class="op">&lt;-</span> <span class="va">final</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">r.squared</span></span>
+<span><span class="co"># Plot convergence</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">final</span><span class="op">)</span></span></code></pre></div>
+<p>We can conclude that the model has converged, and has a positive
+estimate of explained variance in new data. Now, we proceed to
+interpreting the model findings. We will plot the variable importance,
+and partial dependence plots.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot variable importance</span></span>
+<span><span class="fu"><a href="../reference/VarImpPlot.html">VarImpPlot</a></span><span class="op">(</span><span class="va">final</span><span class="op">)</span></span>
+<span><span class="co"># Sort the variable names by importance, so that the</span></span>
+<span><span class="co"># partial dependence plots will be ranked by importance</span></span>
+<span><span class="va">ordered_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">final</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">variable.importance</span><span class="op">)</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">final</span><span class="op">$</span><span class="va">forest</span><span class="op">$</span><span class="va">variable.importance</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co"># Plot partial dependence</span></span>
+<span><span class="fu"><a href="../reference/PartialDependence.html">PartialDependence</a></span><span class="op">(</span><span class="va">final</span>, vars <span class="op">=</span> <span class="va">ordered_vars</span>,</span>
+<span>                  rawdata <span class="op">=</span> <span class="cn">TRUE</span>, pi <span class="op">=</span> <span class="fl">.95</span><span class="op">)</span></span></code></pre></div>
+<p>Because this is an exploratory, non-parametric analysis, we cannot
+conclude whether any of these findings are “significant”. However, the
+<code>PartialDependence</code> function has two settings that help
+visualize the “importance” of a finding: <code>rawdata</code>, which
+plots the weighted raw data (studies with larger weights are plotted
+with a larger point size), thereby visualizing the variance around the
+mean prediction, and <code>pi</code>, which plots a (e.g., 95%)
+percentile interval of the predictions of individual trees in the model.
+This is not the same as a confidence interval, but it does show how
+variable or stable the model predictions are. This exploratory moderator
+analysis could be followed with a linear regression model, focusing only
+on relevant moderators identified by <code>MetaForest</code>.</p>
 </div>
 </div>
-<div id="more-information" class="section level2">
-<h2 class="hasAnchor">
-<a href="#more-information" class="anchor"></a>More information</h2>
-<p>The following open-access book chapter has a more elaborate tutorial, including reporting guidelines:</p>
-<p>Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring heterogeneity using MetaForest. In R. Van De Schoot &amp; M. Miočević (Eds.), <em>Small Sample Size Solutions (Open Access): A Guide for Applied Researchers and Practitioners.</em> CRC Press. <a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a></p>
-<p>Moreover, other applied examples of MetaForest analyses are available in published papers, some of which have open data and syntax. For instance, <a href="http://www.sciencedirect.com/science/article/pii/S0022103117303451">Curry and colleagues (2019)</a> used MetaForest to examine moderators of the effect of acts of kindness on well-being, and found none. The full syntax and data are available on Github; <a href="https://github.com/cjvanlissa/kindness_meta-analysis" class="uri">https://github.com/cjvanlissa/kindness_meta-analysis</a>. Secondly, <a href="http://www.sciencedirect.com/science/article/pii/S014976341930168X">Bonapersona and colleagues (2019)</a> used MetaForest to identify moderators of the effect of early life adversity on the behavioral phenotype of animal models. Their full syntax and data are available at <a href="https://osf.io/ra947/" class="uri">https://osf.io/ra947/</a>. Thirdly, <a href="http://rgdoi.net/10.13140/RG.2.2.13568.33287/1">Gao and colleagues</a> used MetaForest to examine moderators of the “mere ownership” effect: People’s tendency to value what they own more than what they do not own. There studies illustrate different applications of MetaForest, and different reporting practices.</p>
+<div class="section level2">
+<h2 id="more-information">More information<a class="anchor" aria-label="anchor" href="#more-information"></a>
+</h2>
+<p>The following open-access book chapter has a more elaborate tutorial,
+including reporting guidelines:</p>
+<p>Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring
+heterogeneity using MetaForest. In R. Van De Schoot &amp; M. Miočević
+(Eds.), <em>Small Sample Size Solutions (Open Access): A Guide for
+Applied Researchers and Practitioners.</em> CRC Press. <a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="external-link uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a></p>
+<p>Moreover, other applied examples of MetaForest analyses are available
+in published papers, some of which have open data and syntax. For
+instance, <a href="http://www.sciencedirect.com/science/article/pii/S0022103117303451" class="external-link">Curry
+and colleagues (2019)</a> used MetaForest to examine moderators of the
+effect of acts of kindness on well-being, and found none. The full
+syntax and data are available on Github; <a href="https://github.com/cjvanlissa/kindness_meta-analysis" class="external-link uri">https://github.com/cjvanlissa/kindness_meta-analysis</a>.
+Secondly, <a href="http://www.sciencedirect.com/science/article/pii/S014976341930168X" class="external-link">Bonapersona
+and colleagues (2019)</a> used MetaForest to identify moderators of the
+effect of early life adversity on the behavioral phenotype of animal
+models. Their full syntax and data are available at <a href="https://osf.io/ra947/" class="external-link uri">https://osf.io/ra947/</a>.
+Thirdly, <a href="http://rgdoi.net/10.13140/RG.2.2.13568.33287/1" class="external-link">Gao
+and colleagues</a> used MetaForest to examine moderators of the “mere
+ownership” effect: People’s tendency to value what they own more than
+what they do not own. There studies illustrate different applications of
+MetaForest, and different reporting practices.</p>
 </div>
   </div>
 
@@ -235,11 +287,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Caspar J. van Lissa.</p>
+  <p></p>
+<p>Developed by Caspar J. van Lissa.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -247,6 +301,8 @@
 
   
 
+
+  
 
   </body>
 </html>

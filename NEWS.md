@@ -1,3 +1,7 @@
+# Version 0.1.6
+
+* Removed deprecated functions
+
 # Version 0.1.5
 
 * Fixed plot.ranger()

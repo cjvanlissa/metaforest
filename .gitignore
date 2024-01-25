@@ -10,3 +10,5 @@ doc
 Meta
 .RData
 *.ai
+/doc/
+/Meta/

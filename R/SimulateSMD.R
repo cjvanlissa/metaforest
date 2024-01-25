@@ -2,10 +2,10 @@
 #'
 #' This function simulates a meta-analytic dataset based on the random-effects
 #' model. The simulated effect size is Hedges' G, an estimator of the
-#' Standardized Mean Difference (Hedges, 1981; Li, Dusseldorp, & Meulman, 2017).
+#' Standardized Mean Difference.
 #' The functional form of the model can be specified, and moderators can be
-#' either normally distributed or Bernoulli-distributed. See Van Lissa, in
-#' preparation, for a detailed explanation of the simulation procedure.
+#' either normally distributed or Bernoulli-distributed. See Van Lissa, 2018,
+#' for a detailed explanation of the simulation procedure.
 #' @param k_train Atomic integer. The number of studies in the training dataset.
 #'  Defaults to 20.
 #' @param k_test Atomic integer. The number of studies in the testing dataset.
@@ -16,9 +16,8 @@
 #' and sd mean_n/3.
 #' @param es Atomic numeric vector. The effect size, also known as beta, used in
 #'  the model statement. Defaults to .5.
-#' @param tau2 Atomic numeric vector. The residual heterogeneity. For a range of
-#'  realistic values encountered in psychological research, see Van Erp,
-#'  Verhagen, Grasman, & Wagenmakers, 2017. Defaults to 0.04.
+#' @param tau2 Atomic numeric vector. The residual heterogeneity.
+#' Defaults to 0.04.
 #' @param moderators Atomic integer. The number of moderators to simulate for
 #' each study. Make sure that the number of moderators to be simulated is at
 #' least as large as the number of moderators referred to in the model
@@ -41,6 +40,12 @@
 #' k_train + k_test rows. The columns are n, the sample size n for each
 #' simulated study; mu_i, the mean true effect size for each simulated study;
 #' and theta_i, the true effect size for each simulated study.
+#' @references Van Lissa, C. J. (2020). Small sample meta-analyses: exploring
+#' heterogeneity using metaForest. In R. Van De Schoot & M. Miočević (Eds.),
+#' Small sample size solutions (open access): A guide for applied researchers
+#' and practitioners. CRC Press (pp.186–202). \doi{10.4324/9780429273872-16}
+#' Van Lissa, C. J. (2018). MetaForest: Exploring heterogeneity in meta-analysis
+#' using random forests. PsyArxiv. \doi{10.31234/osf.io/myg6s}
 #' @export
 #' @examples
 #' set.seed(8)

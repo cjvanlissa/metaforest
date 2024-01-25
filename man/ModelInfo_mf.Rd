@@ -20,8 +20,8 @@ training data x. The name of this column is specified using the argument
 'vi'.
 }
 \details{
-To train a clustered MetaForest (\code{clusterMF}), simply provide the
-optional argument 'study' to the train function, to specify the study ID.
+To train a clustered MetaForest, for nested data structures, simply provide
+the optional argument 'study' to the train function, to specify the study ID.
 This should again refer to a column of x.
 
 When training a clustered MetaForest, make sure to use

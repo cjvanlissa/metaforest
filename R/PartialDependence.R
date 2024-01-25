@@ -141,9 +141,6 @@ PartialDependence.MetaForest <-
            ...) {
     all_args <- as.list(match.call()[-1])
     # Check input arguments ---------------------------------------------------
-    if(hasArg("interaction")){
-      stop("The argument 'interaction' has been deprecated, and is replaced by the argument 'moderator'. See ?PartialDependence for help on how to use the 'moderator' argument." )
-    }
     if(hasArg("label_elements")){
       label_elements <- eval(match.call()[["label_elements"]])
     } else {
@@ -152,7 +149,7 @@ PartialDependence.MetaForest <-
     if (is.null(vars)) {
       select_vars <- names(x$forest$variable.importance)
     } else {
-      if (!class(vars) == "character") {
+      if (!inherits(vars, what = "character")) {
         stop("Argument 'vars' must be a character string.", call. = FALSE)
       }
       select_vars <-
@@ -171,7 +168,7 @@ PartialDependence.MetaForest <-
     }
     if (!is.null(moderator)) {
       select_vars <- select_vars[!select_vars == moderator]
-      if (!class(moderator) == "character") {
+      if (!inherits(moderator, what = "character")) {
         stop(
           "Moderator must be a character string, corresponding to the name of a variable in the MetaForest analysis.",
           call. = FALSE

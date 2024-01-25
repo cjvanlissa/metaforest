@@ -1,16 +1,16 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-MetaForest <a href='https://cjvanlissa.github.io/metaforest/'><img src='https://github.com/cjvanlissa/metaforest/raw/master/docs/metaforest_icon.png' align="right" height="139" /></a>
-=======================================================================================================================================================================================
+# MetaForest <a href='https://cjvanlissa.github.io/metaforest/'><img src='https://github.com/cjvanlissa/metaforest/raw/master/docs/metaforest_icon.png' align="right" height="139" /></a>
+
+<!-- badges: start -->
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
 [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![R-CMD-check](https://github.com/cjvanlissa/metaforest/workflows/R-CMD-check/badge.svg)](https://github.com/cjvanlissa/metaforest/actions)
-[![codecov](https://codecov.io/gh/cjvanlissa/metaforest/branch/master/graph/badge.svg?token=KuBBTF3CjU)](https://codecov.io/gh/cjvanlissa/metaforest)
+[![R-CMD-check](https://github.com/cjvanlissa/metaforest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/cjvanlissa/metaforest/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
-Background
-==========
+# Background
 
 The goal of MetaForest is to explore heterogeneity in meta-analytic
 data, identify important moderators, and explore the functional form of
@@ -36,8 +36,7 @@ been overlooked. We hope that this approach will be of use to
 researchers, and that the availability of user-friendly R functions will
 facilitate its adoption.
 
-Installation
-============
+# Installation
 
 You can install `metaforest` from CRAN with:
 
@@ -45,16 +44,14 @@ You can install `metaforest` from CRAN with:
 install.packages("metaforest")
 ```
 
-Documentation
-=============
+# Documentation
 
 Every user-facing function in the package is documented, and the
 documentation can be accessed by running `?function_name` in the R
 console, e.g., `?graph`, or by checking the [project
 website](https://cjvanlissa.github.io/metaforest/reference/index.html)
 
-Citing metaforest
-=================
+# Citing metaforest
 
 You can cite the method by referencing this open access book chapter:
 
@@ -62,10 +59,15 @@ Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring
 heterogeneity using MetaForest. In R. Van De Schoot & M. Miočević
 (Eds.), *Small Sample Size Solutions (Open Access): A Guide for Applied
 Researchers and Practitioners.* CRC Press.
-<a href="https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222" class="uri">https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222</a>
+<https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222>
 
-Contributing and Contact Information
-====================================
+The simulation study supporting the method is available in:
+
+Van Lissa, C. J. (2018). MetaForest: Exploring heterogeneity in
+meta-analysis using random forests. PsyArxiv.
+<https:://doi.org/10.31234/osf.io/myg6s>
+
+# Contributing and Contact Information
 
 If you have ideas, please get involved. You can contribute by opening an
 issue on GitHub, or sending a pull request with proposed features.
@@ -82,8 +84,7 @@ tests for that contribution to the `tests/testthat` folder, and ensure
 that these tests pass in the [GitHub Actions
 panel](https://github.com/cjvanlissa/worcs/actions/workflows/R-CMD-check).
 
-Example analysis
-================
+# Example analysis
 
 This example demonstrates how one might go about conducting a
 meta-analysis using MetaForest. For more information, check the [package
