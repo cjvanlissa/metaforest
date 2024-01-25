@@ -75,7 +75,8 @@ include plot_int effects, except when the rma model is bivariate, and the
 \code{plot_int} argument is set to \code{TRUE}.
 }
 \examples{
-# Partial dependence plot for MetaForest() model:
+\dontrun{
+#' # Partial dependence plot for MetaForest() model:
 set.seed(42)
 data <- SimulateSMD(k_train = 200, model = es * x[, 1] + es * x[, 2] + es *
                                            x[, 1] * x[, 2])$training
@@ -85,7 +86,6 @@ mf.random <- MetaForest(formula = yi ~ ., data = data,
                         tau2 = 0.2450)
 # Examine univariate partial dependence plot for all variables in the model:
 PartialDependence(mf.random, pi = .8)
-\dontrun{
 # Examine bivariate partial dependence plot the plot_int between X1 and X2:
 pd.plot <- PartialDependence(mf.random, vars = c("X1", "X2"), plot_int = TRUE)
 # Save to pdf file

@@ -153,7 +153,8 @@ include plot_int effects, except when the rma model is bivariate, and the
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Partial dependence plot for MetaForest() model:</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co">#' # Partial dependence plot for MetaForest() model:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="SimulateSMD.html">SimulateSMD</a></span><span class="op">(</span>k_train <span class="op">=</span> <span class="fl">200</span>, model <span class="op">=</span> <span class="va">es</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">es</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="va">es</span> <span class="op">*</span></span></span>
 <span class="r-in"><span>                                           <span class="va">x</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">training</span></span></span>
@@ -163,8 +164,6 @@ include plot_int effects, except when the rma model is bivariate, and the
 <span class="r-in"><span>                        tau2 <span class="op">=</span> <span class="fl">0.2450</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Examine univariate partial dependence plot for all variables in the model:</span></span></span>
 <span class="r-in"><span><span class="fu">PartialDependence</span><span class="op">(</span><span class="va">mf.random</span>, pi <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PartialDependence-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="co"># Examine bivariate partial dependence plot the plot_int between X1 and X2:</span></span></span>
 <span class="r-in"><span><span class="va">pd.plot</span> <span class="op">&lt;-</span> <span class="fu">PartialDependence</span><span class="op">(</span><span class="va">mf.random</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X1"</span>, <span class="st">"X2"</span><span class="op">)</span>, plot_int <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Save to pdf file</span></span></span>

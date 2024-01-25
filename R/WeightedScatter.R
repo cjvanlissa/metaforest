@@ -27,6 +27,7 @@
 #' @importFrom gtable gtable_matrix gtable_add_cols gtable_add_grob
 #' @export
 #' @examples
+#' \dontrun{
 #' set.seed(42)
 #' data <- SimulateSMD(k_train = 100, model = es * x[, 1] + es * x[, 2] + es *
 #'                       x[, 1] * x[, 2])$training
@@ -35,6 +36,7 @@
 #' WeightedScatter(data, summarize = FALSE)
 #' WeightedScatter(data, vars = c("X3"))
 #' WeightedScatter(data, vars = c("X1", "X3"))
+#' }
 WeightedScatter <-
   function(data,
            yi = "yi",

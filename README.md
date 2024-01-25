@@ -6,7 +6,7 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/metaforest)](https://cran.r-project.org/package=metaforest)
-[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#maturing)
 [![R-CMD-check](https://github.com/cjvanlissa/metaforest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/cjvanlissa/metaforest/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -59,13 +59,13 @@ Van Lissa, C. J. (2020). Small sample meta-analyses: Exploring
 heterogeneity using MetaForest. In R. Van De Schoot & M. Miočević
 (Eds.), *Small Sample Size Solutions (Open Access): A Guide for Applied
 Researchers and Practitioners.* CRC Press.
-<https://www.crcpress.com/Small-Sample-Size-Solutions-Open-Access-A-Guide-for-Applied-Researchers/Schoot-Miocevic/p/book/9780367222222>
+<https://doi.org/10.4324/9780429273872-16>
 
 The simulation study supporting the method is available in:
 
 Van Lissa, C. J. (2018). MetaForest: Exploring heterogeneity in
 meta-analysis using random forests. PsyArxiv.
-<https:://doi.org/10.31234/osf.io/myg6s>
+<https://doi.org/10.31234/osf.io/myg6s>
 
 # Contributing and Contact Information
 

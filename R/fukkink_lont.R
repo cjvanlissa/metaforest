@@ -42,9 +42,7 @@
 #' @references Fukkink, R. G., & Lont, A. (2007). Does training matter? A
 #' meta-analysis and review of caregiver training studies.
 #' Early childhood research quarterly, 22(3), 294-311.
-#' \href{https://doi.org/10.1016/j.ecresq.2007.04.005}{
-#' doi:10.1016/j.ecresq.2007.04.005}
-#' @source \href{https://doi.org/10.1016/j.ecresq.2007.04.005}{
-#' doi:10.1016/j.ecresq.2007.04.005}
+#' \doi{10.1016/j.ecresq.2007.04.005}
+#' @source \doi{10.1016/j.ecresq.2007.04.005}
 #' @format A data.frame with 78 rows and 30 columns.
 NULL

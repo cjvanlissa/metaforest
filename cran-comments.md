@@ -1,16 +1,24 @@
-# Version 0.1.6
+# Version 0.1.5
 
 * Fixed NOTES in CRAN check
-* No other changes
+* Fixed plot.ranger()
+* Fixed seq_unif.integer() so it will no longer duplicate unique values when
+  length.out exceeds the number of unique values
 
 ## Test environments
 
-* local Windows 10 Enterprise x64 install, R version 4.0.3 (2020-10-10)
-* win-builder R version 3.6.2 (2019-12-12)
-* win-builder R Under development (unstable) (2020-01-03 r77629)
-* Travis Ubuntu 16.04.6 LTS, R version 3.6.1
-* R-hub 	Ubuntu Linux 16.04 LTS, R-release, GCC
-* R-hub Windows Server 2008 R2 SP1, R-devel, 32/64 bit
+* local Windows 10 Enterprise x64 install, R version 4.3.2
+* win-builder R version 4.2.3 (2023-03-15 ucrt)
+* R-hub Fedora Linux, R-devel, clang, gfortran
+* R-hub Ubuntu Linux 20.04.1 LTS, R-release, GCC
+* R-hub Windows Server 2022, R-devel, 64 bit
+* R-hub R Under development (unstable) (2024-01-24 r85824 ucrt)
+* R-hub R version 4.3.2 (2023-10-31 ucrt)
+* GitHub Actions os: macos-latest,   r: 'release'
+* GitHub Actions os: windows-latest, r: 'release'
+* GitHub Actions os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'
+* GitHub Actions os: ubuntu-latest,   r: 'release'
+* GitHub Actions os: ubuntu-latest,   r: 'oldrel-1'
 
 ## R CMD check results
 

@@ -1,9 +1,6 @@
-# Version 0.1.6
-
-* Removed deprecated functions
-
 # Version 0.1.5
 
+* Fixed NOTES in CRAN check
 * Fixed plot.ranger()
 * Fixed seq_unif.integer() so it will no longer duplicate unique values when
   length.out exceeds the number of unique values

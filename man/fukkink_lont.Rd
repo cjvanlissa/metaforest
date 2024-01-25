@@ -8,8 +8,7 @@
 A data.frame with 78 rows and 30 columns.
 }
 \source{
-\href{https://doi.org/10.1016/j.ecresq.2007.04.005}{
-doi:10.1016/j.ecresq.2007.04.005}
+\doi{10.1016/j.ecresq.2007.04.005}
 }
 \usage{
 data(fukkink_lont)
@@ -56,7 +55,6 @@ effect of specialized training on the competency of caregivers in childcare.
 Fukkink, R. G., & Lont, A. (2007). Does training matter? A
 meta-analysis and review of caregiver training studies.
 Early childhood research quarterly, 22(3), 294-311.
-\href{https://doi.org/10.1016/j.ecresq.2007.04.005}{
-doi:10.1016/j.ecresq.2007.04.005}
+\doi{10.1016/j.ecresq.2007.04.005}
 }
 \keyword{datasets}
