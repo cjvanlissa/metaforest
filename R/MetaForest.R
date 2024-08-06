@@ -111,7 +111,7 @@ MetaForest <- function(formula, data, vi = "vi", study = NULL,
     if(grepl("(\\*|:|-)", formula[3])){
       stop("MetaForest only accepts additive model formulae. The underlying regression trees algorithm inherently captures interactions and non-linear effects as a sequence of consecutive splits on the interacting variables, so no interaction terms need to be specified.")
     }
- # browser()
+
     cl <- match.call()
     args <- as.list(cl)[-1]
 

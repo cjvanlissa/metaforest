@@ -23,12 +23,17 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
       stop("Error: Argument 'replace' not supported for clustered MetaForest.")
     }
 
-    rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
-      warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
-      return(rma(yi = y, vi = v, method = "DL"))
-    })
+    if(is.null(tau2)){
+      rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
+        warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+        return(rma_dl(y = y, v = v))
+      })
 
-    if(is.null(tau2)) tau2 <- rma_before$tau2
+      tau2 <- rma_before$tau2
+    } else {
+      rma_before <- list(tau2 = tau2)
+    }
+
 
     metaweights <- switch(whichweights,
                           unif = rep(1, length(y)),
@@ -64,8 +69,8 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
     residuals <- y - predicted
 
     rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
-      warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used method = 'DL' instead. See 'help(rma)' for possible remedies.", call. = FALSE)
-      return(rma(yi = residuals, vi = v, method = "DL"))
+      warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
+      return(rma_dl(y = residuals, v = v))
     })
 
     output <- list(forest = forest, rma_before = rma_before, rma_after = rma_after, data = df, vi = v, study = id, weights = metaweights)

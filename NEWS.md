@@ -1,5 +1,6 @@
 # Version 0.1.5
 
+* Better support for predefined tau2 values
 * Fixed NOTES in CRAN check
 * Fixed plot.ranger()
 * Fixed seq_unif.integer() so it will no longer duplicate unique values when

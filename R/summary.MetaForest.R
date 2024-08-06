@@ -22,7 +22,9 @@ summary.MetaForest <- function(object, ...) {
       MSEoob = object$forest$prediction.error,
       R2oob = object$forest$r.squared
     )
-
+  if(!inherits(object$rma_before, what = "rma")){
+    object$rma_before[c("se.tau2", "I2", "H2", "QE", "k", "p", "QEp", "beta", "se", "ci.lb", "ci.ub", "pval")] <- NA
+  }
   rma.table <- cbind(
     tau2 = c(object$rma_before$tau2, object$rma_after$tau2),
     tau2_SE = c(object$rma_before$se.tau2, object$rma_after$se.tau2),
