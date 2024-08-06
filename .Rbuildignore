@@ -13,3 +13,4 @@ docs/
 ^CRAN-RELEASE$
 ^.*\.ai$
 ^\.github$
+^CRAN-SUBMISSION$
