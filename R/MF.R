@@ -13,7 +13,7 @@ MF <- function(formula, whichweights = "random",
       rma_before <- list(tau2 = tau2)
     }
 
-
+    dots <- list(...)
 
     metaweights <- switch(whichweights,
                           unif = rep(1, length(y)),
@@ -26,7 +26,7 @@ MF <- function(formula, whichweights = "random",
                          data = df,
                          num.trees = num.trees,
                          mtry = mtry,
-                         importance = "permutation",
+                         importance = ifelse("importance" %in% names(dots), dots$importance, "permutation"),
                          write.forest = TRUE,
                          case.weights = metaweights, ...)
     mf$call <- formula
