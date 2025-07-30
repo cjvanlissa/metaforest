@@ -4,7 +4,7 @@ MF <- function(formula, whichweights = "random",
                        tau2 = NULL, ..., v, df) {
     y <- df[[1]]
     if(is.null(tau2)){
-      rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
+      rma_before <- tryCatch({metafor::rma(yi = y, vi = v, method = method)}, error = function(e){
         warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
         return(rma_dl(y = y, v = v))
       })
@@ -42,7 +42,7 @@ MF <- function(formula, whichweights = "random",
     # End of fix
     residuals <- y - mf$predictions
 
-    rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
+    rma_after <- tryCatch({metafor::rma(yi = residuals, vi = v, method = method)}, error = function(e){
       warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
       return(rma_dl(y = residuals, v = v))
     })

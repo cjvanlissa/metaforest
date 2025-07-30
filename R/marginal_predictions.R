@@ -22,14 +22,14 @@ create_integration_grid_mod <- function (data, vars, n, moderator = NULL, mod_le
     points[[which(names(points) == moderator)]] <- mod_levels
   }
 
-  points <- data.table(id = 1, expand.grid(points))
+  points <- data.table::data.table(id = 1, expand.grid(points))
   int.points <-
-    data.table(id = 1, data[sample(seq_len(nrow(data)), min(n[2], nrow(data))), !colnames(data) %in% vars, drop = FALSE])
+    data.table::data.table(id = 1, data[sample(seq_len(nrow(data)), min(n[2], nrow(data))), !colnames(data) %in% vars, drop = FALSE])
   out = merge(int.points,
               points,
               all = TRUE,
               allow.cartesian = TRUE)[,!"id", with = FALSE]
-  setcolorder(out, names(data))
+  data.table::setcolorder(out, names(data))
   if(!is.null(moderator) & !is.null(mod_levels)){
     if(inherits(data[[moderator]], "factor")){
       out[, (moderator) := factor(out[[moderator]], levels = levels(data[[moderator]]))]
@@ -46,27 +46,30 @@ create_integration_grid_mod <- function (data, vars, n, moderator = NULL, mod_le
 }
 
 create_integration_grid <- function (data, vars, n) {
-  points <- data.table(id = 1, expand.grid(sapply(vars, function(x) {
+  points <- data.table::data.table(id = 1, expand.grid(sapply(vars, function(x) {
     seq_unif(data[[x]], length.out = n[1])
   }, simplify = FALSE)))
 
   int.points <-
-    data.table(id = 1, data[sample(seq_len(nrow(data)), min(n[2], nrow(data))), !colnames(data) %in% vars, drop = FALSE])
+    data.table::data.table(id = 1, data[sample(seq_len(nrow(data)), min(n[2], nrow(data))), !colnames(data) %in% vars, drop = FALSE])
   out = merge(int.points,
               points,
               all = TRUE,
               allow.cartesian = TRUE)[,!"id", with = FALSE]
-  setcolorder(out, names(data))
+  data.table::setcolorder(out, names(data))
   out
 }
 
 seq_unif <- function(x, length.out){
   UseMethod("seq_unif", x)
 }
+
+#' @export
 seq_unif.numeric <- function(x, length.out){
   seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = length.out)
 }
 
+#' @export
 seq_unif.integer <- function (x, length.out) {
   min.x = min(x, na.rm = TRUE)
   max.x = max(x, na.rm = TRUE)
@@ -80,6 +83,7 @@ seq_unif.integer <- function (x, length.out) {
   }
 }
 
+#' @export
 seq_unif.character <- function(x, length.out){
   x.length = length(unique(x))
   if (length.out < x.length) {
@@ -88,6 +92,7 @@ seq_unif.character <- function(x, length.out){
   sample(unique(x), size = min(length.out, x.length))
 }
 
+#' @export
 seq_unif.factor <- function(x, length.out) {
   x.length = length(unique(x))
   if (length.out >= x.length) {

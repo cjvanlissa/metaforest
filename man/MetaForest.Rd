@@ -117,15 +117,16 @@ summary(mf.random)
 
 #Example 2: Real data from metafor
 #Load and clean data
-data <- dat.bangertdrowns2004
-data[, c(4:12)] <- apply(data[ , c(4:12)], 2, function(x){
+data("dat.bangertdrowns2004", package = "metadat")
+df <- dat.bangertdrowns2004
+df[, c(4:12)] <- apply(df[ , c(4:12)], 2, function(x){
   x[is.na(x)] <- median(x, na.rm = TRUE)
   x})
-data$subject <- factor(data$subject)
-data$yi <- as.numeric(data$yi)
+df$subject <- factor(df$subject)
+df$yi <- as.numeric(df$yi)
 #Conduct MetaForest analysis
 mf.bd2004 <- MetaForest(formula = yi~ grade + length + minutes + wic+
-                               meta, data, whichweights = "unif")
+                               meta, df, whichweights = "unif")
 #Print MetaForest object
 mf.bd2004
 #Check convergence plot

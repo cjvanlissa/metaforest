@@ -17,11 +17,12 @@
 #' @examples
 #' \dontrun{
 #' # Prepare data
+#' data("dat.bcg", package = "metadat")
 #' dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 #' dat$yi <- as.numeric(dat$yi)
 #' dat$alloc <- factor(dat$alloc)
 #' # Run rma
-#' rma.model <- rma(y = dat$yi, mods = dat[, c("ablat", "year")], vi = dat$vi)
+#' rma.model <- metafor::rma(y = dat$yi, mods = dat[, c("ablat", "year")], vi = dat$vi)
 #' # R^2 is estimated to be .64
 #' rma.model$R2
 #' # Now, use cross-validation to see how well this model generalizes
@@ -56,7 +57,7 @@ ModelInfo_rma <- function(){
                     stop(\"Tuning an rma() model requires passing a vector of sampling variances to the 'weights' parameter when calling train().\")
                     }
                     dat <- if(is.matrix(x)) x else as.matrix(x)
-                    out <- rma(yi = y, vi = wts, mods = x, method = param$method, ...)
+                    out <- metafor::rma(yi = y, vi = wts, mods = x, method = param$method, ...)
                     out
                     },
                     predict = function(modelFit, newdata, submodels = NULL) {

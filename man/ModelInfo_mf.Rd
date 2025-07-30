@@ -48,21 +48,22 @@ cv_mf_fit <- train(y = data$yi, x = data[,c(3:13, 16)],
 
 
 # Cross-validated clustered MetaForest
-data <- get(data(dat.bourassa1996))
-data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
-               data = data, add = 1/2, to = "all")
-data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
-data[c(5:8)] <- lapply(data[c(5:8)], factor)
-data$yi <- as.numeric(data$yi)
+data("dat.bourassa1996", package = "metadat")
+df <- dat.bourassa1996
+df <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
+               data = df, add = 1/2, to = "all")
+df$mage[is.na(df$mage)] <- median(df$mage, na.rm = TRUE)
+df[c(5:8)] <- lapply(df[c(5:8)], factor)
+df$yi <- as.numeric(df$yi)
 # Set up 10-fold grouped CV
-fit_control <- trainControl(method = "cv", index = groupKFold(data$sample,
+fit_control <- trainControl(method = "cv", index = groupKFold(df$sample,
                             k = 10))
 # Set up a custom tuning grid for the three tuning parameters of MetaForest
 rf_grid <- expand.grid(whichweights = c("random", "fixed", "unif"),
                        mtry = c(2, 4, 6),
                        min.node.size = c(2, 4, 6))
 # Train the model
-cv.mf.cluster <- train(y = data$yi, x = data[, c("selection", "investigator",
+cv.mf.cluster <- train(y = df$yi, x = df[, c("selection", "investigator",
                                                  "hand_assess", "eye_assess",
                                                  "mage", "sex", "vi",
                                                  "sample")],

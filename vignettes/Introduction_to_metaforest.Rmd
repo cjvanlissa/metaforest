@@ -44,7 +44,6 @@ set.seed(62)
 ```
 ```{r echo = FALSE, message=FALSE}
 library(metaforest)
-library(caret)
 data <- fukkink_lont
 set.seed(62)
 ```

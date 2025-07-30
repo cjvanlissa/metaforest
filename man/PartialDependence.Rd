@@ -93,12 +93,13 @@ pdf("pd_plot.pdf")
 grid.draw(pd.plot)
 dev.off()
 # Partial dependence plot for metafor rma() model:
+data("dat.bcg", package = "metadat")
 dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 dat$yi <- as.numeric(dat$yi)
 dat$alloc <- factor(dat$alloc)
 dat$ablat_d <- cut(dat$ablat, breaks = 2, labels = c("low", "high"))
 # Demonstrate partial dependence plot for a bivariate plot_int
-rma.model.int <- rma(yi, vi, mods=cbind(ablat, tpos),
+rma.model.int <- metafor::rma(yi, vi, mods=cbind(ablat, tpos),
                      data=dat, method="REML")
 PartialDependence(rma.model.int, rawdata = TRUE, pi = .95,
                   plot_int = TRUE)
@@ -108,7 +109,7 @@ dat2 <- dat
 dat2[3:7] <- lapply(dat2[3:7],
                     function(x){as.numeric(scale(x, scale = FALSE))})
 mf.model.all <- MetaForest(yi ~ ., dat2[, c(3:11)])
-rma.model.all <- rma(dat$yi, dat2$vi,
+rma.model.all <- metafor::rma(dat$yi, dat2$vi,
                   mods = model.matrix(yi~., dat2[, c(3:10)])[, -1],
                   method="REML")
 PartialDependence(mf.model.all, rawdata = TRUE, pi = .95)

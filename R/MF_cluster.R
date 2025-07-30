@@ -26,7 +26,7 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
   }
 
   if(is.null(tau2)){
-    rma_before <- tryCatch({rma(yi = y, vi = v, method = method)}, error = function(e){
+    rma_before <- tryCatch({metafor::rma(yi = y, vi = v, method = method)}, error = function(e){
       warning("Error when attempting to estimate initial heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
       return(rma_dl(y = y, v = v))
     })
@@ -74,7 +74,7 @@ MF_cluster <- function(formula, whichweights = "random", num.trees = 500,
   predicted <- forest$predictions
   residuals <- y - predicted
 
-  rma_after <- tryCatch({rma(yi = residuals, vi = v, method = method)}, error = function(e){
+  rma_after <- tryCatch({metafor::rma(yi = residuals, vi = v, method = method)}, error = function(e){
     warning("Error when attempting to estimate residual heterogeneity using metafor::rma using method ='", method, "'. Used DerSimonian-Laird method instead. See 'help(rma)' for possible remedies.", call. = FALSE)
     return(rma_dl(y = residuals, v = v))
   })

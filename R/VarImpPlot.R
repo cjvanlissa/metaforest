@@ -44,7 +44,7 @@ VarImpPlot <- function(mf, n.var = 30, sort = TRUE, ...) {
       theme(panel.grid.major.x = element_blank(),
             panel.grid.minor.x = element_blank(),
             axis.title.y=element_blank())
-    if(hasArg("label_elements")){
+    if(methods::hasArg("label_elements")){
       label_elements <- eval(match.call()[["label_elements"]])
       levels(p$data$Variable) <- rename_fun(levels(p$data$Variable), names(label_elements), label_elements)
     }

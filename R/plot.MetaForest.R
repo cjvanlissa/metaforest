@@ -8,7 +8,6 @@
 #' visual aid to assess convergence, a dashed gray line is plotted at the median
 #' cumulative MSE value.
 #' @import ggplot2
-#' @import ranger
 #' @export
 #' @examples
 #' \dontshow{

@@ -8,8 +8,9 @@
 #' Defaults to "pt".
 #' @return Named vector.
 #' @examples
-#' dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
-#' res <- rma(yi, vi, mods = ~alloc-1, data=dat, method="REML")
+#' data("dat.bcg", package = "metadat")
+#' dat <- metafor::escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
+#' res <- metafor::rma(yi, vi, mods = ~alloc-1, data=dat, method="REML")
 #' coef_test(res, 1, 2)
 #' @rdname coef_test
 #' @export

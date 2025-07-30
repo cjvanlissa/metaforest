@@ -40,7 +40,7 @@ test_that("Plot is ggplot", {expect_s3_class(p, "ggplot")})
 retain_mods <- preselect_vars(preselected, cutoff = .7)
 test_that("Which vars are preselected", {expect_true(all(retain_mods %in% names(data)))})
 
-
+if(requireNamespace("caret", quietly = TRUE)){
 library(caret)
 
 grouped_cv <- trainControl(method = "cv",
@@ -81,3 +81,4 @@ test_that("varimpplot correct", {expect_true(all(p$data$Variable %in% retain_mod
 
 p <- PartialDependence(final)
 test_that("varimpplot correct", {expect_s3_class(p, "gtable")})
+}

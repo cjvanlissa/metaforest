@@ -36,15 +36,16 @@ model is assigned zero importance.
 }
 \examples{
 \dontrun{
-data <- get(data(dat.bourassa1996))
-data <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
-               data = data, add = 1/2, to = "all")
-data$mage[is.na(data$mage)] <- median(data$mage, na.rm = TRUE)
-data[c(5:8)] <- lapply(data[c(5:8)], factor)
-data$yi <- as.numeric(data$yi)
+data("dat.bourassa1996", package = "metadat")
+df <- dat.bourassa1996
+df <- escalc(measure = "OR", ai = lh.le, bi = lh.re, ci = rh.le, di= rh.re,
+               data = df, add = 1/2, to = "all")
+df$mage[is.na(df$mage)] <- median(df$mage, na.rm = TRUE)
+df[c(5:8)] <- lapply(df[c(5:8)], factor)
+df$yi <- as.numeric(df$yi)
 preselected <- preselect(formula = yi~ selection + investigator + hand_assess + eye_assess +
                         mage +sex,
-          data, study = "sample",
+          df, study = "sample",
           whichweights = "unif", num.trees = 300,
           replications = 10,
           algorithm = "bootstrap")
