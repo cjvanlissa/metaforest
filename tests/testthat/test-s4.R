@@ -47,7 +47,7 @@ grouped_cv <- trainControl(method = "cv",
                            index = groupKFold(data$id_exp, k = 3))
 
 tuning_grid <- expand.grid(whichweights = c("random", "fixed", "unif"),
-                           mtry = 2:4,
+                           mtry = 1:2,
                            min.node.size = 1:4)
 
 X <- data[, c("id_exp", "vi", retain_mods)]

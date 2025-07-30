@@ -130,7 +130,7 @@ plot.mf_preselect <- function(x, y, ...){
   plotdat <- data.frame(Variable = ordered(rep(names(imp), each = nrow(imp)), levels = order_vars), Importance = c(as.matrix(imp)))
   plotdat <- plotdat[complete.cases(plotdat), ]
 
-  p <- ggplot(plotdat, aes_string(x = "Variable", y = "Importance")) +
+  p <- ggplot(plotdat, aes(x = .data[["Variable"]], y = .data[["Importance"]])) +
     geom_boxplot(color="black", size=0.2, outlier.shape = NA) +
     geom_jitter(width = .2, alpha = .2) +
     theme_bw() +

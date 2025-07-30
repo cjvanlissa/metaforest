@@ -35,8 +35,8 @@ VarImpPlot <- function(mf, n.var = 30, sort = TRUE, ...) {
 
     var_importance <- var_importance[rev(rownames(var_importance)), ]
     var_importance$Variable <- factor(var_importance$Variable, levels=var_importance$Variable)
-    p <- ggplot(var_importance, aes_string(y="Variable", x="importance"))+
-      geom_segment(aes_string(x=0, xend="importance", y="Variable", yend="Variable"), colour = "grey50", linetype = 2)+
+    p <- ggplot(var_importance, aes(y=.data[["Variable"]], x=.data[["importance"]]))+
+      geom_segment(aes(x=0, xend=.data[["importance"]], y=.data[["Variable"]], yend=.data[["Variable"]]), colour = "grey50", linetype = 2)+
       geom_vline(xintercept = 0, colour = "grey50", linetype = 1)+
       geom_point(shape=1, size=2) +
       xlab("Variable Importance (Permutation importance)")+

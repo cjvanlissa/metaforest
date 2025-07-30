@@ -29,7 +29,7 @@ plot.MetaForest <- function(x, y, ...) {
     mses <- colMeans(sweep(predictions, 1, observed, "-")^2)
     mses <- cumsum(mses) / 1:length(mses)
     cumulative_predictions <- data.frame(num_trees = 1:length(mses), mse = mses)
-    ggplot(cumulative_predictions, aes_string(x = "num_trees", y = "mse")) +
+    ggplot(cumulative_predictions, aes(x = .data[["num_trees"]], y = .data[["mse"]])) +
       geom_line() +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5)) +
@@ -75,7 +75,7 @@ plot.ranger <- function(x, y, ..., data = NULL) {
   mses <- colMeans(sweep(predictions, 1, observed, "-")^2)
   mses <- cumsum(mses) / 1:length(mses)
   cumulative_predictions <- data.frame(num_trees = 1:length(mses), mse = mses)
-  ggplot(cumulative_predictions, aes_string(x = "num_trees", y = "mse")) +
+  ggplot(cumulative_predictions, aes(x = .data[["num_trees"]], y = .data[["mse"]])) +
     geom_line() +
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5)) +

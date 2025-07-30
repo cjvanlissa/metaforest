@@ -72,11 +72,11 @@ WeightedScatter <-
       current_variable <- select_vars[x]
       p <-
         ggplot(data.frame(plotdat[, c(yi, "weights", current_variable)], Variable = current_variable),
-               aes_string(
-                 x = current_variable,
-                 y = yi,
-                 size = "weights",
-                 weight = "weights"
+               aes(
+                 x = .data[[current_variable]],
+                 y = .data[[yi]],
+                 size = .data[["weights"]],
+                 weight = .data[["weights"]]
                )) +
         facet_wrap("Variable") +
         theme_bw() +

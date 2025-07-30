@@ -329,9 +329,9 @@ create_plotlist <-
       if (plot_int) {
         if (cont_mod) {
           # Heatmap
-          p <- ggplot(.plot, aes_string(
-            x = names(.plot)[1],
-            y = names(.plot)[2],
+          p <- ggplot(.plot, aes(
+            x = .data[[names(.plot)[1]]],
+            y = .data[[names(.plot)[2]]],
             fill = "preds"
           )) +
             geom_raster() +
@@ -356,12 +356,12 @@ create_plotlist <-
           if (bw) {
             p <- ggplot(
               .plot,
-              aes_string(
-                x = names(.plot)[1],
-                y = names(.plot)[3],
-                group = names(.plot)[2],
-                linetype = names(.plot)[2],
-                shape = names(.plot)[2]
+              aes(
+                x = .data[[names(.plot)[1]]],
+                y = .data[[names(.plot)[3]]],
+                group = .data[[names(.plot)[2]]],
+                linetype = .data[[names(.plot)[2]]],
+                shape = .data[[names(.plot)[2]]]
               )
             ) +
               scale_y_continuous(limits = y_limits) +
@@ -369,12 +369,12 @@ create_plotlist <-
           } else {
             p <- ggplot(
               .plot,
-              aes_string(
-                x = names(.plot)[1],
-                y = names(.plot)[3],
-                group = names(.plot)[2],
-                colour = names(.plot)[2],
-                fill = names(.plot)[2]
+              aes(
+                x = .data[[names(.plot)[1]]],
+                y = .data[[names(.plot)[3]]],
+                group = .data[[names(.plot)[2]]],
+                colour = .data[[names(.plot)[2]]],
+                fill = .data[[names(.plot)[2]]]
               )
             ) +
               scale_y_continuous(limits = y_limits) +
@@ -385,15 +385,15 @@ create_plotlist <-
       } else {
         # Single line plot
         if (bw) {
-          p <- ggplot(.plot, aes_string(x = names(.plot)[1],
-                                        y = names(.plot)[2])) +
+          p <- ggplot(.plot, aes(x = .data[[names(.plot)[1]]],
+                                        y = .data[[names(.plot)[2]]])) +
             scale_y_continuous(limits = y_limits) +
             ylab(y_label)
         } else {
           p <- ggplot(.plot,
-                      aes_string(
-                        x = names(.plot)[1],
-                        y = names(.plot)[2],
+                      aes(
+                        x = .data[[names(.plot)[1]]],
+                        y = .data[[names(.plot)[2]]],
                         group = 1,
                         colour = 1,
                         fill = 1
@@ -421,20 +421,18 @@ create_plotlist <-
         if (!cont_mod) {
           # Add shaded confidence ribbon
           if (plot_pi) {
-            p <- p + geom_ribbon(aes_string(ymin = names(.plot)[ncol(.plot) - 2],
-                                            ymax = names(.plot)[ncol(.plot) -
-                                                                  1]),
-                                 alpha = .2)
+            p <- p + geom_ribbon(aes(ymin = .data[[names(.plot)[ncol(.plot) - 2]]],
+                                            ymax = .data[[names(.plot)[ncol(.plot) -1]]]), alpha = .2)
           }
           # Add points
           if (rawdata) {
             p <- p + geom_point(
               data = raw.data,
               alpha = .1,
-              aes_string(
-                x = names(.plot)[1],
-                y = names(raw.data)[1],
-                size = "wi"
+              aes(
+                x = .data[[names(.plot)[1]]],
+                y = .data[[names(raw.data)[1]]],
+                size = .data[["wi"]]
               )
             ) +
               scale_size_continuous(guide = "none")
@@ -450,8 +448,8 @@ create_plotlist <-
           # Add errorbars
           if (plot_pi) {
             p <- p + geom_errorbar(
-              aes_string(ymin = names(.plot)[ncol(.plot) - 2],
-                         ymax =  names(.plot)[ncol(.plot) - 1]),
+              aes(ymin = .data[[names(.plot)[ncol(.plot) - 2]]],
+                         ymax =  .data[[names(.plot)[ncol(.plot) - 1]]]),
               width = .4,
               position = position_dodge(width = .5)
             )
@@ -466,10 +464,10 @@ create_plotlist <-
                 dodge.width = .5
               ),
               alpha = .1,
-              aes_string(
-                x = names(.plot)[1],
-                y = names(raw.data)[1],
-                size = "wi"
+              aes(
+                x = .data[[names(.plot)[1]]],
+                y = .data[[names(raw.data)[1]]],
+                size = .data[["wi"]]
               )
             )
           }
