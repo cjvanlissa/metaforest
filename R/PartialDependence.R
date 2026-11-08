@@ -209,9 +209,6 @@ PartialDependence.MetaForest <-
 
     cases <- nrow(x$data)
 
-    numeric_vars <-
-      which(sapply(x$data[select_vars], inherits, c("numeric", "integer")))
-
     if (is.null(resolution)) {
       resolution <-
         c(min(nrow(unique(x$data[, select_vars, drop = FALSE])), 25L), cases)
